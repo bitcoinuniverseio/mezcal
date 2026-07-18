@@ -1,24 +1,35 @@
 # Mezcal documentation
 
-A standalone Bitcoin Universe documentation site for Mezcal.
+Bitcoin Universe documentation for Mezcal on Bitcoin.
 
-## Included
+## What this covers
 
-- `index.html`: visual protocol overview, lifecycle, payload examples, and safety guidance
-- `reference.html`: field reference and integration checklist
-- `llms.txt`: compact machine-readable protocol summary
+Mezcalstones are JSON messages placed immediately after OP_RETURN. A stone can etch a named Mezcal asset, mint an existing asset, and allocate balances with edicts. The protocol is deliberately JSON rather than the compact binary encoding used by Runes.
+
+## State model
+
+A Mezcalstone makes allocation explicit. Etching defines metadata and mint terms. Minting adds units to the transaction pool. Edicts and pointer decide which outputs receive those units.
+
+## Documentation site
+
+- Overview: [index.html](index.html)
+- Field reference: [reference.html](reference.html)
+- Build and verification playbook: [guide.html](guide.html)
+
+## Core rules
+
+- The payload is JSON directly after OP_RETURN, with no OP_13 marker.
+- Mezcal names are lowercase letters, digits, and hyphens, one through 15 characters.
+- Amounts are strings interpreted as unsigned 128-bit values.
+- Edicts include asset ID, amount, and output index.
+- A pointer selects the fallback destination for unallocated amounts.
+- Price-enabled mints must satisfy the required payment output rules.
+
+## Source material
+
+- [Mezcal protocol site](https://mezcal.sh)
+- [Mezcal reference implementation](https://github.com/bitapeslabs/mezcal)
 
 ## Scope
 
-A Runes-inspired protocol that places a JSON Mezcalstone directly after OP_RETURN and adds options such as priced and flexible mints.
-
-This repository is a navigational integration guide. The linked primary sources and their active reference implementations are authoritative.
-
-## Sources
-
-- [Mezcal website](https://mezcal.sh/)
-- [Mezcal reference implementation](https://github.com/bitapeslabs/mezcal)
-
-## Local preview
-
-Open `index.html` in a browser, or serve this directory with any static file server. GitHub Pages can publish directly from the repository root.
+A correct-looking JSON object can still allocate to the wrong output. Freeze transaction outputs before deriving edict indexes or pointer values.

@@ -1,39 +1,52 @@
-# Mezcal | Bitcoin Universe Protocol Reference
+# Mezcal
 
-> Human docs: index.html
-> Field reference: reference.html
-> Network: Bitcoin
-> Classification: JSON-first Runes-inspired protocol
+> JSON-encoded fungible assets with Runestone-inspired allocation semantics.
 
-## Summary
+## Chain and carrier
 
-A Runes-inspired protocol that places a JSON Mezcalstone directly after OP_RETURN and adds options such as priced and flexible mints.
+- Chain: Bitcoin
+- Carrier: Mezcalstone JSON in OP_RETURN
+
+## Overview
+
+Mezcalstones are JSON messages placed immediately after OP_RETURN. A stone can etch a named Mezcal asset, mint an existing asset, and allocate balances with edicts. The protocol is deliberately JSON rather than the compact binary encoding used by Runes.
 
 ## State model
 
-Strictly validated JSON in OP_RETURN, interpreted as etching, mint, pointer, and edict data by the Mezcal indexer.
+A Mezcalstone makes allocation explicit. Etching defines metadata and mint terms. Minting adds units to the transaction pool. Edicts and pointer decide which outputs receive those units.
 
 ## Lifecycle
 
-1. Etch Mezcal
-2. Set terms
-3. Mint or premine
-4. Allocate outputs
+1. Choose a unique lowercase Mezcal name.
+2. Etch divisibility, premine, symbol, terms, and turbo setting.
+3. Mint under height, offset, cap, amount, and optional price rules.
+4. Allocate with edicts or use the pointer fallback.
 
-## Operations
+## Rules
 
-- Etching: Defines a unique lowercase Mezcal name, divisibility, premine, symbol, and optional terms.
-- Mint: References an etched Mezcal and mints under its active terms.
-- Edict: Allocates a Mezcal amount to a transaction output.
-- Priced mint: Requires an on-transaction payment to the configured address for a mint to be valid.
+- The payload is JSON directly after OP_RETURN, with no OP_13 marker.
+- Mezcal names are lowercase letters, digits, and hyphens, one through 15 characters.
+- Amounts are strings interpreted as unsigned 128-bit values.
+- Edicts include asset ID, amount, and output index.
+- A pointer selects the fallback destination for unallocated amounts.
+- Price-enabled mints must satisfy the required payment output rules.
 
-## Safety
+## Field reference
 
-1. Mezcalstones are JSON, but the validator is intentionally strict about value types and sizes. Validate with the reference implementation.
-2. A malformed Mezcalstone is treated as a cenotaph by the published implementation. Check every output index and field before signing.
-3. Priced mints require the transaction outputs to satisfy the configured payment condition. A syntactically valid mint can still be invalid.
+- p (string, required: yes): mezcal or the documented Mezcal URL identifier.
+- etching (object, required: no): New asset metadata and terms.
+- mezcal (name string, required: etching): 1-15 lowercase letters, digits, or hyphens.
+- divisibility (u8, required: etching): Display precision.
+- premine (u128 string, required: etching): Initial units.
+- mint (block:tx string, required: no): Existing asset ID to mint.
+- edicts (array, required: no): Asset ID, u128 amount, and output index allocations.
+- pointer (u32, required: no): Fallback output for unallocated balance.
 
-## Sources
+## Primary sources
 
-- Mezcal website: https://mezcal.sh/
+- Mezcal protocol site: https://mezcal.sh
 - Mezcal reference implementation: https://github.com/bitapeslabs/mezcal
+
+## Operational caution
+
+A correct-looking JSON object can still allocate to the wrong output. Freeze transaction outputs before deriving edict indexes or pointer values.
