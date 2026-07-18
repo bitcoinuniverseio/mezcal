@@ -1,52 +1,61 @@
 # Mezcal
 
-> JSON-encoded fungible assets with Runestone-inspired allocation semantics.
+> A source-backed Bitcoin Universe developer manual for the Mezcal protocol.
 
-## Chain and carrier
+## Protocol model
 
 - Chain: Bitcoin
-- Carrier: Mezcalstone JSON in OP_RETURN
+- Carrier: a UTF-8 JSON Mezcalstone directly after OP_RETURN
+- State model: UTXO allocations expressed with edicts and optional pointer fallback
+- Primary implementation: bitapeslabs/mezcal
+- CLI: bitapeslabs/mezcal-cli
 
-## Overview
+Mezcal uses a strict JSON schema. The current reference decoder extracts the OP_RETURN data, parses it as UTF-8 JSON, validates it with a strict Zod schema, checks edict output indexes against the transaction shape, then treats failures as a cenotaph.
 
-Mezcalstones are JSON messages placed immediately after OP_RETURN. A stone can etch a named Mezcal asset, mint an existing asset, and allocate balances with edicts. The protocol is deliberately JSON rather than the compact binary encoding used by Runes.
+## Accepted protocol identifier values
 
-## State model
+- mezcal
+- https://mezcal.sh
+- https://t.me/mezcalbtc
 
-A Mezcalstone makes allocation explicit. Etching defines metadata and mint terms. Minting adds units to the transaction pool. Edicts and pointer decide which outputs receive those units.
+## Schema essentials from the current reference validator
 
-## Lifecycle
+- p is required and must be one accepted literal.
+- etching, mint, edicts, and pointer are optional top-level fields. Unknown top-level fields are rejected.
+- An etching name is 1-15 lowercase letters, digits, or hyphens.
+- divisibility is an integer from 0 through 18.
+- premine, terms.amount, terms.cap, and edict amount are non-empty unsigned 128-bit decimal strings.
+- A mint ID or edict ID is block:tx, where both values are unsigned 32-bit integers.
+- An edict can use object form with id, amount, output or tuple form with id, amount, output.
+- Edict output is unsigned 8-bit and must reference an existing final output.
+- pointer is an unsigned 32-bit output index.
+- Priced mints use one or more terms.price entries with an amount and Bitcoin address. Required payment outputs must exist for a valid priced mint.
 
-1. Choose a unique lowercase Mezcal name.
-2. Etch divisibility, premine, symbol, terms, and turbo setting.
-3. Mint under height, offset, cap, amount, and optional price rules.
-4. Allocate with edicts or use the pointer fallback.
+## Cenotaph conditions emphasized by the reference decoder
 
-## Rules
+- invalid UTF-8 JSON
+- strict schema failure
+- edict output index beyond the transaction output count
+- asset ID with block zero and a nonzero transaction index
 
-- The payload is JSON directly after OP_RETURN, with no OP_13 marker.
-- Mezcal names are lowercase letters, digits, and hyphens, one through 15 characters.
-- Amounts are strings interpreted as unsigned 128-bit values.
-- Edicts include asset ID, amount, and output index.
-- A pointer selects the fallback destination for unallocated amounts.
-- Price-enabled mints must satisfy the required payment output rules.
+## Official CLI command examples
 
-## Field reference
-
-- p (string, required: yes): mezcal or the documented Mezcal URL identifier.
-- etching (object, required: no): New asset metadata and terms.
-- mezcal (name string, required: etching): 1-15 lowercase letters, digits, or hyphens.
-- divisibility (u8, required: etching): Display precision.
-- premine (u128 string, required: etching): Initial units.
-- mint (block:tx string, required: no): Existing asset ID to mint.
-- edicts (array, required: no): Asset ID, u128 amount, and output index allocations.
-- pointer (u32, required: no): Fallback output for unallocated balance.
+    npm install -g mezcal-cli
+    mezcal --help
+    mezcal config show
+    mezcal info 859:1
+    mezcal balance
+    mezcal etch
+    mezcal mint 859:1
+    mezcal transfer
 
 ## Primary sources
 
-- Mezcal protocol site: https://mezcal.sh
-- Mezcal reference implementation: https://github.com/bitapeslabs/mezcal
+- Protocol site: https://mezcal.sh
+- Validator, pinned revision: https://github.com/bitapeslabs/mezcal/blob/0f3323ffc1c657ad529529f04543b5ba93250fd6/src/lib/mezcalstone.ts
+- README, pinned revision: https://github.com/bitapeslabs/mezcal/blob/0f3323ffc1c657ad529529f04543b5ba93250fd6/README.md
+- CLI README, pinned revision: https://github.com/bitapeslabs/mezcal-cli/blob/cc232a2523a9b459868e0f5aa72c9a4fe151c1a7/README.md
 
-## Operational caution
+## Asset provenance
 
-A correct-looking JSON object can still allocate to the wrong output. Freeze transaction outputs before deriving edict indexes or pointer values.
+The visual palette, favicon, project artwork, and official font assets are described in ATTRIBUTION.md.

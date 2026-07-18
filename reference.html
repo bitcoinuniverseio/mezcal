@@ -1,32 +1,127 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Field reference for Mezcal."><meta name="theme-color" content="#071016"><title>Mezcal reference | Bitcoin Universe Docs</title><style>
-:root{--accent:hsl(72 88% 60%);--ink:#edf4f8;--muted:#9bb0bd;--paper:#071016;--panel:#0d1921;--line:rgba(214,239,247,.13);--soft:rgba(255,255,255,.045)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:radial-gradient(900px 480px at 82% -80px,hsla(72,90%,56%,.25),transparent 64%),radial-gradient(680px 540px at -12% 38%,hsla(150,82%,48%,.12),transparent 70%),var(--paper);font:16px/1.62 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.top{height:74px;display:flex;gap:22px;align-items:center;max-width:1200px;margin:auto;padding:0 26px;border-bottom:1px solid var(--line);position:relative;z-index:4}.brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-weight:760;letter-spacing:-.02em}.brand b{display:grid;place-items:center;width:30px;height:30px;border:1px solid color-mix(in srgb,var(--accent),white 25%);border-radius:9px;color:#081115;background:var(--accent);font-size:11px;box-shadow:0 0 30px color-mix(in srgb,var(--accent),transparent 65%)}nav{display:flex;gap:3px;margin-left:18px}nav a,.repo{color:var(--muted);text-decoration:none;padding:8px 10px;border-radius:8px;font-size:14px}nav a:hover,nav a.active{color:var(--ink);background:var(--soft)}.repo{margin-left:auto;border:1px solid var(--line);color:var(--ink)}.wrap{max-width:1200px;margin:auto;padding:0 26px}.hero{min-height:520px;padding:82px 0 56px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:55px;align-items:center}.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:800}.hero h1{font-size:clamp(48px,7.7vw,94px);letter-spacing:-.078em;line-height:.94;margin:13px 0 22px;max-width:720px}.hero p{color:#bed0da;font-size:20px;line-height:1.55;max-width:690px;margin:0}.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}.chip{padding:6px 10px;border:1px solid var(--line);border-radius:999px;color:#c3d1d8;background:rgba(255,255,255,.025);font-size:12px}.cta{display:inline-flex;align-items:center;gap:9px;margin-top:29px;padding:11px 15px;background:var(--accent);color:#061118;text-decoration:none;font-weight:800;border-radius:10px;box-shadow:0 12px 32px color-mix(in srgb,var(--accent),transparent 77%)}.orbit{height:380px;position:relative;display:grid;place-items:center;isolation:isolate}.orbit:before,.orbit:after{content:"";position:absolute;border:1px solid color-mix(in srgb,var(--accent),transparent 55%);border-radius:50%;z-index:-1}.orbit:before{width:310px;height:310px;transform:rotate(24deg) scaleY(.58)}.orbit:after{width:365px;height:365px;border-color:var(--line);transform:rotate(-39deg) scaleY(.33)}.core{width:168px;height:168px;border-radius:34px;display:grid;place-items:center;background:linear-gradient(140deg,color-mix(in srgb,var(--accent),white 22%),var(--accent));color:#051014;font-size:58px;font-weight:900;letter-spacing:-.11em;box-shadow:0 0 0 17px rgba(255,255,255,.028),0 0 60px color-mix(in srgb,var(--accent),transparent 58%);transform:rotate(-10deg)}.node{position:absolute;border:1px solid var(--line);background:#0b1922;color:#c8d9e1;padding:7px 9px;border-radius:8px;font-size:12px}.node.one{top:42px;right:0}.node.two{bottom:42px;left:8px}.node.three{right:22px;bottom:104px}.divider{height:1px;background:var(--line)}section{padding:82px 0}.section-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:50px;margin-bottom:34px}.section-head h2{letter-spacing:-.052em;font-size:clamp(29px,4.1vw,51px);line-height:1.03;margin:6px 0 0}.section-head p{color:var(--muted);align-self:end;margin:0;font-size:17px}.grid{display:grid;gap:16px}.four{grid-template-columns:repeat(4,1fr)}.three{grid-template-columns:repeat(3,1fr)}.card{border:1px solid var(--line);background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border-radius:15px;padding:20px;min-width:0}.card .number{color:var(--accent);font-size:12px;font-weight:800;letter-spacing:.11em}.card h3{font-size:18px;letter-spacing:-.025em;line-height:1.2;margin:15px 0 8px}.card p{color:var(--muted);font-size:14px;margin:0}.steps{counter-reset:step}.step{counter-increment:step;position:relative;padding:22px 17px 18px 29px;border-left:1px solid var(--line)}.step:before{content:counter(step,decimal-leading-zero);position:absolute;top:22px;left:-11px;color:var(--accent);font-size:10px;font-weight:900;background:var(--paper);padding:3px}.step h3{margin:0 0 7px;font-size:17px;line-height:1.25}.step p{margin:0;color:var(--muted);font-size:14px}.callout{border-left:3px solid var(--accent);border-radius:0 12px 12px 0;background:color-mix(in srgb,var(--accent),transparent 91%);padding:20px 22px;color:#ccdae0}.callout b{display:block;color:var(--ink);margin-bottom:5px}.packet{padding:0;overflow:hidden}.packet header{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--line);font-size:13px;font-weight:800}.packet button{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:4px 7px;cursor:pointer;font:inherit;font-size:11px}.packet button:hover{color:var(--ink)}pre{white-space:pre-wrap;overflow:auto;padding:18px;margin:0;color:#c5e7f3;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;background:#071219}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}table{width:100%;border-collapse:collapse;min-width:690px;background:rgba(255,255,255,.018)}th,td{text-align:left;padding:14px 15px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:rgba(255,255,255,.025)}td{font-size:14px;color:#c0d0d8}td:first-child{font-family:ui-monospace,monospace;color:#ecf5f8;font-weight:700}tr:last-child td{border-bottom:0}.checklist{list-style:none;padding:0;margin:0;display:grid;gap:10px}.checklist li{display:flex;gap:11px;padding:13px 14px;border:1px solid var(--line);border-radius:10px;color:#c9d8de;background:rgba(255,255,255,.025)}.checklist li:before{content:'✓';display:grid;place-items:center;flex:0 0 20px;width:20px;height:20px;border-radius:50%;background:color-mix(in srgb,var(--accent),transparent 80%);color:var(--accent);font-weight:900}.sources{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.source{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 16px;border:1px solid var(--line);border-radius:11px;color:var(--ink);text-decoration:none;background:rgba(255,255,255,.025)}.source small{color:var(--muted);white-space:nowrap}.footer{padding:34px 0 48px;border-top:1px solid var(--line);color:#78909e;font-size:13px}.footer a{color:#b9cad0}.guide-list{display:grid;gap:0;counter-reset:guide}.guide-list article{counter-increment:guide;display:grid;grid-template-columns:62px 1fr;gap:18px;padding:24px 0;border-bottom:1px solid var(--line)}.guide-list article:before{content:counter(guide,decimal-leading-zero);color:var(--accent);font-weight:900;font-size:14px}.guide-list h3{margin:0 0 5px;font-size:19px;letter-spacing:-.025em}.guide-list p{margin:0;color:var(--muted)}.mini{font-size:13px;color:var(--muted)}@media(max-width:800px){.top{padding:0 16px;height:auto;min-height:66px;flex-wrap:wrap;gap:8px}.brand{margin-right:auto}nav{order:3;margin:0 -8px 7px;width:100%;overflow:auto}.repo{margin:0}.wrap{padding:0 17px}.hero{grid-template-columns:1fr;padding:56px 0 26px;gap:5px;min-height:0}.hero h1{font-size:58px}.orbit{height:230px;transform:scale(.72);margin:-28px}.section-head{grid-template-columns:1fr;gap:15px}.four,.three{grid-template-columns:1fr}.sources{grid-template-columns:1fr}section{padding:55px 0}}
-</style></head><body><header class="top"><a class="brand" href="index.html"><b>M</b><span>Mezcal</span></a><nav><a class="" href="index.html">Overview</a><a class="active" href="reference.html">Reference</a><a class="" href="guide.html">Build & verify</a><a href="#sources">Sources</a></nav><a class="repo" href="https://github.com/bitcoinuniverse/mezcal-docs">GitHub ↗</a></header><main><div class="wrap hero" style="min-height:410px"><div><div class="eyebrow">Reference / field and payload level</div><h1 style="font-size:clamp(46px,7vw,82px)">Mezcal<br><i style="font-style:normal;color:var(--accent)">packets.</i></h1><p>Payload shapes, field meaning, and validation boundaries for builders and indexers.</p><div class="chips"><span class="chip">Copyable examples</span><span class="chip">Field-level rules</span></div></div><div class="orbit" aria-hidden="true"><div class="core">{ }</div><span class="node one">schema</span><span class="node two">carrier</span><span class="node three">state</span></div></div><div class="divider"></div><section><div class="wrap"><div class="section-head"><div><div class="eyebrow">Payload gallery</div><h2>Start with a valid shape.</h2></div><p>Examples communicate field placement and transaction intent. Apply the active deployment state and source rules before you broadcast.</p></div><div class="grid three"><article class="card packet"><header><span>Etching</span><button type="button" data-copy="{
-  &quot;p&quot;:&quot;https://mezcal.sh&quot;,
-  &quot;etching&quot;:{
-    &quot;divisibility&quot;:8,&quot;premine&quot;:&quot;0&quot;,&quot;mezcal&quot;:&quot;wbtc&quot;,
-    &quot;symbol&quot;:&quot;₿&quot;,&quot;terms&quot;:null,&quot;turbo&quot;:true
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mezcalstone schema, payload, and validation reference.">
+  <meta name="theme-color" content="#0b0b0b">
+  <title>Mezcal reference | Bitcoin Universe docs</title>
+  <link rel="icon" href="https://mezcal.sh/favicon.ico">
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+  <header class="shell topbar">
+    <a class="brand" href="index.html"><img src="https://mezcal.sh/favicon.ico" alt="Mezcal logo"><strong>mezcal</strong></a>
+    <nav class="nav" aria-label="Documentation"><a href="index.html">Overview</a><a class="active" href="reference.html">Reference</a><a href="guide.html">CLI &amp; build</a><a href="#sources">Sources</a></nav>
+    <a class="top-action" href="https://github.com/bitapeslabs/mezcal" target="_blank" rel="noreferrer">Source ↗</a>
+  </header>
+
+  <main>
+    <div class="shell hero" style="min-height:500px">
+      <div>
+        <div class="eyebrow">Official source-backed reference</div>
+        <h1>stone<br><span class="lime">by stone.</span></h1>
+        <p class="lead">The real Mezcalstone surface, copied from the current reference validator and organized for transaction builders.</p>
+        <div class="tags"><span class="tag">Strict Zod schema</span><span class="tag">No unknown keys</span><span class="tag">Pinned source links</span></div>
+      </div>
+      <div class="hero-art"><img src="https://github.com/user-attachments/assets/4fce5c83-47ef-451d-9de8-534e93809dfb" alt="Official Mezcal project artwork" referrerpolicy="no-referrer"><div class="art-caption">Read the validator,<br>not a guess</div></div>
+    </div>
+    <div class="rule"></div>
+
+    <section>
+      <div class="shell">
+        <div class="section-heading"><div><div class="eyebrow">Carrier</div><h2>One explicit envelope.</h2></div><p>The official README describes a UTF-8 JSON Mezcalstone pushed immediately after OP_RETURN. The current decoder finds the nulldata output, extracts its payload, parses JSON, then strict-validates the result.</p></div>
+        <div class="code-grid">
+          <article class="panel code"><header><span>Official carrier shape</span><button class="copy" data-copy="OP_RETURN &lt;utf8-encoded-mezcalstone-json&gt;">Copy</button></header><pre><code>OP_RETURN &lt;utf8-encoded-mezcalstone-json&gt;</code></pre><div class="code-note">From the <a href="https://github.com/bitapeslabs/mezcal/blob/0f3323ffc1c657ad529529f04543b5ba93250fd6/README.md" target="_blank" rel="noreferrer">official README</a>. There is no OP_13 marker.</div></article>
+          <article class="panel code"><header><span>Accepted protocol identifiers</span><button class="copy" data-copy="mezcal | https://mezcal.sh | https://t.me/mezcalbtc">Copy</button></header><pre><code>"mezcal"
+"https://mezcal.sh"
+"https://t.me/mezcalbtc"</code></pre><div class="code-note">These are the three literal p values accepted by the current <a href="https://github.com/bitapeslabs/mezcal/blob/0f3323ffc1c657ad529529f04543b5ba93250fd6/src/lib/mezcalstone.ts" target="_blank" rel="noreferrer">MezcalstoneSchema</a>.</div></article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-heading"><div><div class="eyebrow">Official code excerpt</div><h2>What the validator accepts.</h2></div><p>This compact TypeScript excerpt is taken from the official validator. It is the decisive clue that an extra, unknown JSON key is not harmless: the schema ends in .strict().</p></div>
+        <article class="panel code"><header><span>src/lib/mezcalstone.ts, current pinned source</span><button class="copy" data-copy="See linked official source">Source</button></header><pre><code>export const MezcalstoneSchema = z.object({
+  p: z.union([
+    z.literal("mezcal"),
+    z.literal("https://mezcal.sh"),
+    z.literal("https://t.me/mezcalbtc"),
+  ]),
+  edicts: z.array(EdictSchema).optional(),
+  etching: EtchingSchema.optional(),
+  mint: MintSchema.optional(),
+  pointer: u32().optional(),
+}).strict();</code></pre><div class="code-note">Source: <a href="https://github.com/bitapeslabs/mezcal/blob/0f3323ffc1c657ad529529f04543b5ba93250fd6/src/lib/mezcalstone.ts#L114-L125" target="_blank" rel="noreferrer">bitapeslabs/mezcal @ 0f3323f</a>.</div></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-heading"><div><div class="eyebrow">Payload gallery</div><h2>Start from valid JSON.</h2></div><p>These payloads are shaped around the current schema. Replace IDs, addresses, and final output indexes with values from your own finalized transaction.</p></div>
+        <div class="code-grid">
+          <article class="panel code"><header><span>Etch an asset</span><button class="copy" data-copy='{"p":"https://mezcal.sh","etching":{"divisibility":8,"premine":"0","mezcal":"taco","symbol":"🌮","terms":null,"turbo":true}}'>Copy</button></header><pre><code>{
+  "p": "https://mezcal.sh",
+  "etching": {
+    "divisibility": 8,
+    "premine": "0",
+    "mezcal": "taco",
+    "symbol": "🌮",
+    "terms": null,
+    "turbo": true
   }
-}">Copy</button></header><pre><code>{
-  &quot;p&quot;:&quot;https://mezcal.sh&quot;,
-  &quot;etching&quot;:{
-    &quot;divisibility&quot;:8,&quot;premine&quot;:&quot;0&quot;,&quot;mezcal&quot;:&quot;wbtc&quot;,
-    &quot;symbol&quot;:&quot;₿&quot;,&quot;terms&quot;:null,&quot;turbo&quot;:true
+}</code></pre><div class="code-note">The schema permits names of 1 to 15 lowercase letters, digits, and hyphens. Divisibility is 0 through 18.</div></article>
+          <article class="panel code"><header><span>Mint and allocate</span><button class="copy" data-copy='{"p":"mezcal","mint":"840000:1","edicts":[{"id":"840000:1","amount":"250","output":1}],"pointer":2}'>Copy</button></header><pre><code>{
+  "p": "mezcal",
+  "mint": "840000:1",
+  "edicts": [
+    { "id": "840000:1", "amount": "250", "output": 1 }
+  ],
+  "pointer": 2
+}</code></pre><div class="code-note">An edict can also use the tuple form ["840000:1", "250", 1]. Output indexes must exist in the final transaction.</div></article>
+          <article class="panel code"><header><span>Priced flex mint</span><button class="copy" data-copy='{"p":"https://mezcal.sh","etching":{"divisibility":8,"premine":"0","mezcal":"wbtc","symbol":"₿","terms":{"price":[{"amount":"1","pay_to":"bcrt1pxya87gu5jnde0x72hp2l84tur62jl7yhkwnf7yc2hwgk2rnx9t2q6natl2"}],"amount":"0","cap":null,"height":[0,null],"offset":[null,null]},"turbo":true}}'>Copy</button></header><pre><code>{
+  "p": "https://mezcal.sh",
+  "etching": {
+    "divisibility": 8, "premine": "0",
+    "mezcal": "wbtc", "symbol": "₿",
+    "terms": {
+      "price": [{ "amount": "1", "pay_to": "bcrt1p..." }],
+      "amount": "0", "cap": null,
+      "height": [0, null], "offset": [null, null]
+    }, "turbo": true
   }
-}</code></pre><p style="padding:14px 16px">Creates a new asset with a valid lowercase name.</p></article><article class="card packet"><header><span>Edict</span><button type="button" data-copy="{
-  &quot;p&quot;:&quot;https://mezcal.sh&quot;,
-  &quot;edicts&quot;:[{&quot;id&quot;:&quot;840000:1&quot;,&quot;amount&quot;:&quot;250&quot;,&quot;output&quot;:1}],
-  &quot;pointer&quot;:2
-}">Copy</button></header><pre><code>{
-  &quot;p&quot;:&quot;https://mezcal.sh&quot;,
-  &quot;edicts&quot;:[{&quot;id&quot;:&quot;840000:1&quot;,&quot;amount&quot;:&quot;250&quot;,&quot;output&quot;:1}],
-  &quot;pointer&quot;:2
-}</code></pre><p style="padding:14px 16px">Allocates a specified amount to output 1 and sends unallocated amounts to output 2.</p></article><article class="card packet"><header><span>Mint reference</span><button type="button" data-copy="{
-  &quot;p&quot;:&quot;https://mezcal.sh&quot;,
-  &quot;mint&quot;:&quot;840000:1&quot;,
-  &quot;pointer&quot;:1
-}">Copy</button></header><pre><code>{
-  &quot;p&quot;:&quot;https://mezcal.sh&quot;,
-  &quot;mint&quot;:&quot;840000:1&quot;,
-  &quot;pointer&quot;:1
-}</code></pre><p style="padding:14px 16px">References an existing asset ID, then applies its active terms and output allocation rules.</p></article></div></div></section><section><div class="wrap"><div class="section-head"><div><div class="eyebrow">Field ledger</div><h2>What every value means.</h2></div><p>Required status is contextual: a field can be mandatory for one operation and absent from another.</p></div><div class="table-wrap"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Validation and intent</th></tr></thead><tbody><tr><td>p</td><td>string</td><td>yes</td><td>mezcal or the documented Mezcal URL identifier.</td></tr><tr><td>etching</td><td>object</td><td>no</td><td>New asset metadata and terms.</td></tr><tr><td>mezcal</td><td>name string</td><td>etching</td><td>1-15 lowercase letters, digits, or hyphens.</td></tr><tr><td>divisibility</td><td>u8</td><td>etching</td><td>Display precision.</td></tr><tr><td>premine</td><td>u128 string</td><td>etching</td><td>Initial units.</td></tr><tr><td>mint</td><td>block:tx string</td><td>no</td><td>Existing asset ID to mint.</td></tr><tr><td>edicts</td><td>array</td><td>no</td><td>Asset ID, u128 amount, and output index allocations.</td></tr><tr><td>pointer</td><td>u32</td><td>no</td><td>Fallback output for unallocated balance.</td></tr></tbody></table></div></div></section><section><div class="wrap"><div class="section-head"><div><div class="eyebrow">Validation wall</div><h2>Reject before signing.</h2></div><p>Put these checks in preflight. A wallet confirmation screen should surface any condition that changes the asset result.</p></div><ul class="checklist"><li>The payload is JSON directly after OP_RETURN, with no OP_13 marker.</li><li>Mezcal names are lowercase letters, digits, and hyphens, one through 15 characters.</li><li>Amounts are strings interpreted as unsigned 128-bit values.</li><li>Edicts include asset ID, amount, and output index.</li><li>A pointer selects the fallback destination for unallocated amounts.</li><li>Price-enabled mints must satisfy the required payment output rules.</li></ul></div></section><section id="sources"><div class="wrap"><div class="section-head"><div><div class="eyebrow">Source trail</div><h2>Read the active implementation.</h2></div><p>These links are the starting point for release-aware rules and reference behavior. Check them again before production use.</p></div><div class="sources"><a class="source" href="https://mezcal.sh" target="_blank" rel="noreferrer"><span>Mezcal protocol site</span><small>Open ↗</small></a><a class="source" href="https://github.com/bitapeslabs/mezcal" target="_blank" rel="noreferrer"><span>Mezcal reference implementation</span><small>Open ↗</small></a></div></div></section></main><footer class="footer"><div class="wrap">Built by <a href="https://github.com/bitcoinuniverse">Bitcoin Universe</a>. Review live protocol implementations before signing a transaction.</div></footer><script>for(const b of document.querySelectorAll('[data-copy]'))b.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(b.dataset.copy);const t=b.textContent;b.textContent='Copied';setTimeout(()=>b.textContent=t,1200)}catch{b.textContent='Select text'}})</script></body></html>
+}</code></pre><div class="code-note">Based on the official flex-mint example. pay_to must be a valid address for the active network.</div></article>
+          <article class="panel code"><header><span>Known failure path</span><button class="copy" data-copy="invalid JSON | invalid schema | bad edict output => cenotaph">Copy</button></header><pre><code>invalid JSON
+  | invalid schema
+  | bad edict output index
+  | block 0 with nonzero tx index
+= cenotaph</code></pre><div class="code-note">The reference decoder treats invalid Mezcalstones as a cenotaph. Preflight the exact serialized transaction, not a draft object.</div></article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-heading"><div><div class="eyebrow">Field ledger</div><h2>Small fields, hard limits.</h2></div><p>Amount values are decimal strings for u128 range. Output indexes, asset IDs, and date windows have distinct integer limits that should be validated before wallet approval.</p></div>
+        <div class="table-scroll"><table><thead><tr><th>Field</th><th>Current validator rule</th><th>Why it matters</th></tr></thead><tbody>
+          <tr><td>p</td><td>One of three literals: mezcal, https://mezcal.sh, or https://t.me/mezcalbtc.</td><td>Unknown protocol headers fail strict validation.</td></tr>
+          <tr><td>mezcal</td><td>1-15 lowercase a-z, digits, or hyphens.</td><td>Name is part of the etching identity and must be unique in protocol state.</td></tr>
+          <tr><td>divisibility</td><td>Integer 0 through 18.</td><td>Controls display precision, not the internal u128 amount representation.</td></tr>
+          <tr><td>premine / amount / cap</td><td>Non-empty decimal strings inside unsigned 128-bit range.</td><td>Do not use JSON numbers or floating point conversion.</td></tr>
+          <tr><td>mint / edict id</td><td>block:tx, both valid unsigned 32-bit integers.</td><td>Identifies the existing asset or allocation target.</td></tr>
+          <tr><td>edict output</td><td>Unsigned 8-bit integer, no larger than final output count minus one.</td><td>Determines where the asset is allocated.</td></tr>
+          <tr><td>pointer</td><td>Unsigned 32-bit output index.</td><td>Receives remaining unallocated amount.</td></tr>
+          <tr><td>terms.price</td><td>One or more amount and pay_to pairs.</td><td>Every priced mint must satisfy the required payment outputs.</td></tr>
+        </tbody></table></div>
+      </div>
+    </section>
+
+    <section><div class="shell"><div class="callout"><strong>Builder warning.</strong> Freeze all transaction outputs before deriving edict or pointer values. An output added for fees, change, or payment after indexes are chosen changes the meaning of the Mezcalstone.</div></div></section>
+
+    <section id="sources"><div class="shell"><div class="section-heading"><div><div class="eyebrow">Sources</div><h2>Follow the code.</h2></div><p>The exact rules above are linked to the version used when this documentation was refreshed.</p></div><div class="source-list"><a class="source" href="https://github.com/bitapeslabs/mezcal/blob/0f3323ffc1c657ad529529f04543b5ba93250fd6/src/lib/mezcalstone.ts" target="_blank" rel="noreferrer"><span>Official Mezcalstone validator</span><small>OPEN ↗</small></a><a class="source" href="https://github.com/bitapeslabs/mezcal/blob/0f3323ffc1c657ad529529f04543b5ba93250fd6/README.md" target="_blank" rel="noreferrer"><span>Official protocol README</span><small>OPEN ↗</small></a></div></div></section>
+  </main>
+  <footer class="footer"><div class="shell">Bitcoin Universe documentation. See <a href="ATTRIBUTION.md">ATTRIBUTION.md</a> for official asset and code provenance.</div></footer>
+  <script src="site.js"></script>
+</body>
+</html>
