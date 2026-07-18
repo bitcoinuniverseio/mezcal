@@ -6,7 +6,6 @@ This documentation intentionally uses visual tokens and source material from the
 
 - Official product site: [mezcal.sh](https://mezcal.sh/)
 - Official favicon used in the navigation: https://mezcal.sh/favicon.ico
-- Official artwork used in the landing-page panel: [Mezcal repository README banner](https://github.com/user-attachments/assets/4fce5c83-47ef-451d-9de8-534e93809dfb)
 - Official CSS tokens inspected on 2026-07-18:
   - green: #16e265
   - green hover: #13c957

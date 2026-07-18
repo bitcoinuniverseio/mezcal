@@ -58,4 +58,4 @@ Mezcal uses a strict JSON schema. The current reference decoder extracts the OP_
 
 ## Asset provenance
 
-The visual palette, favicon, project artwork, and official font assets are described in ATTRIBUTION.md.
+The visual palette, favicon, and official font assets are described in ATTRIBUTION.md.
