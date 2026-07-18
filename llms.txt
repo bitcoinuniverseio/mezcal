@@ -1,0 +1,39 @@
+# Mezcal | Bitcoin Universe Protocol Reference
+
+> Human docs: index.html
+> Field reference: reference.html
+> Network: Bitcoin
+> Classification: JSON-first Runes-inspired protocol
+
+## Summary
+
+A Runes-inspired protocol that places a JSON Mezcalstone directly after OP_RETURN and adds options such as priced and flexible mints.
+
+## State model
+
+Strictly validated JSON in OP_RETURN, interpreted as etching, mint, pointer, and edict data by the Mezcal indexer.
+
+## Lifecycle
+
+1. Etch Mezcal
+2. Set terms
+3. Mint or premine
+4. Allocate outputs
+
+## Operations
+
+- Etching: Defines a unique lowercase Mezcal name, divisibility, premine, symbol, and optional terms.
+- Mint: References an etched Mezcal and mints under its active terms.
+- Edict: Allocates a Mezcal amount to a transaction output.
+- Priced mint: Requires an on-transaction payment to the configured address for a mint to be valid.
+
+## Safety
+
+1. Mezcalstones are JSON, but the validator is intentionally strict about value types and sizes. Validate with the reference implementation.
+2. A malformed Mezcalstone is treated as a cenotaph by the published implementation. Check every output index and field before signing.
+3. Priced mints require the transaction outputs to satisfy the configured payment condition. A syntactically valid mint can still be invalid.
+
+## Sources
+
+- Mezcal website: https://mezcal.sh/
+- Mezcal reference implementation: https://github.com/bitapeslabs/mezcal
