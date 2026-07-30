@@ -2,99 +2,60 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A source-backed Mezcal developer field manual from Bitcoin Universe.">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Discover Mezcal, readable JSON-native assets poured directly into Bitcoin transactions.">
   <meta name="theme-color" content="#0b0b0b">
-  <title>mezcal | Bitcoin Universe docs</title>
+  <meta property="og:title" content="Mezcal | A cleaner pour for Bitcoin assets">
+  <meta property="og:description" content="Readable Mezcalstones, Bitcoin-native ownership, and expressive on-chain launches.">
+  <title>Mezcal | A cleaner pour for Bitcoin assets</title>
   <link rel="icon" href="https://mezcal.sh/favicon.ico">
   <link rel="stylesheet" href="theme.css">
 </head>
 <body>
   <header class="shell topbar">
-    <a class="brand" href="index.html"><img src="https://mezcal.sh/favicon.ico" alt="Mezcal logo"><strong>mezcal</strong></a>
-    <nav class="nav" aria-label="Documentation">
-      <a class="active" href="index.html">Overview</a>
-      <a href="reference.html">Reference</a>
-      <a href="guide.html">CLI &amp; build</a>
-      <a href="#sources">Sources</a>
-    </nav>
-    <a class="top-action" href="https://mezcal.sh" target="_blank" rel="noreferrer">mezcal.sh ↗</a>
+    <a class="brand" href="./"><img src="https://mezcal.sh/favicon.ico" alt="Mezcal symbol"><strong>mezcal</strong></a>
+    <nav class="nav" aria-label="Primary"><a href="#why">Why Mezcal</a><a href="#journey">The journey</a><a href="#control">Stay in control</a></nav>
+    <a class="top-action" href="https://mezcal.sh">Enter Mezcal ↗</a>
   </header>
-
   <main>
     <div class="shell hero">
       <div>
-        <div class="eyebrow">Bitcoin protocol field manual</div>
-        <h1>mezcal<br><span class="lime">decoded.</span></h1>
-        <p class="lead">Runes-inspired assets that place a JSON Mezcalstone directly after <code>OP_RETURN</code>. No binary Runestone decoder, no etching commitment, and strict deterministic validation.</p>
-        <div class="tags" aria-label="Protocol attributes">
-          <span class="tag">Bitcoin</span>
-          <span class="tag">OP_RETURN + UTF-8 JSON</span>
-          <span class="tag">u128 amount strings</span>
-        </div>
-        <div class="hero-actions">
-          <a class="button" href="reference.html">Open the reference →</a>
-          <a class="button ghost" href="guide.html">Use the official CLI</a>
-        </div>
+        <div class="eyebrow">JSON clarity. Bitcoin permanence.</div>
+        <h1>A cleaner pour<br>for <span class="lime">Bitcoin assets.</span></h1>
+        <p class="lead">Mezcal brings Runes-inspired assets to Bitcoin through readable UTF-8 JSON, turning etchings, mints, and output allocations into an on-chain story people can inspect.</p>
+        <div class="tags"><span class="tag">Readable Mezcalstones</span><span class="tag">Bitcoin outputs</span><span class="tag">Expressive launches</span></div>
+        <div class="hero-actions"><a class="button" href="https://mezcal.sh">Enter Mezcal</a><a class="button ghost" href="#why">Taste the difference</a></div>
       </div>
     </div>
     <div class="rule"></div>
 
-    <section>
-      <div class="shell">
-        <div class="section-heading">
-          <div><div class="eyebrow">The difference</div><h2>JSON first.<br>Bitcoin native.</h2></div>
-          <p>Mezcal keeps the UTXO allocation model familiar from Runes, then replaces compact Runestone decoding with a strict JSON message. That makes the protocol easier to inspect, but not looser to validate.</p>
-        </div>
-        <div class="columns">
-          <article class="panel card"><div class="overline">01 / CARRIER</div><h3>Directly after OP_RETURN</h3><p>The official README specifies an OP_RETURN followed by a UTF-8 encoded Mezcalstone string. There is no OP_13 marker.</p></article>
-          <article class="panel card"><div class="overline">02 / STATE</div><h3>UTXO allocations</h3><p>Etchings, mints, edicts, and a pointer determine the asset amounts allocated to the transaction outputs.</p></article>
-          <article class="panel card"><div class="overline">03 / VALIDATOR</div><h3>Strict schema, cenotaph on failure</h3><p>The reference indexer parses JSON and validates it against a strict schema. Invalid JSON, fields, or edict outputs create a cenotaph.</p></article>
-        </div>
+    <section id="why"><div class="shell">
+      <div class="section-heading"><div><div class="eyebrow">The Mezcal difference</div><h2>Readable intent.<br>Native Bitcoin ownership.</h2></div><p>A Mezcalstone places UTF-8 JSON directly after OP_RETURN. The message is easy to recognize, while transaction outputs complete the asset allocation.</p></div>
+      <div class="columns">
+        <article class="panel card"><div class="overline">01 / READABLE</div><h3>JSON you can inspect</h3><p>Asset intent is carried in a familiar, human-readable message inside the Bitcoin transaction.</p></article>
+        <article class="panel card"><div class="overline">02 / BITCOIN</div><h3>Ownership in outputs</h3><p>Etchings, mints, edicts, and pointers shape asset amounts across transaction outputs.</p></article>
+        <article class="panel card"><div class="overline">03 / EXPRESSIVE</div><h3>Launches with character</h3><p>Flexible mint terms and clear allocation choices give communities room to tell distinct stories.</p></article>
       </div>
-    </section>
+    </div></section>
 
-    <section>
-      <div class="shell">
-        <div class="section-heading">
-          <div><div class="eyebrow">Lifecycle</div><h2>From etch to output.</h2></div>
-          <p>Build the transaction outputs before you derive edict indexes. The visible JSON is only half the protocol, the final transaction shape completes the allocation.</p>
-        </div>
-        <div class="flow">
-          <article><b>01</b><h3>Etch</h3><p>Choose one unique lowercase name, symbol, divisibility, premine, and optional mint terms.</p></article>
-          <article><b>02</b><h3>Mint</h3><p>Reference an existing block:tx asset ID and satisfy caps, windows, and price terms.</p></article>
-          <article><b>03</b><h3>Allocate</h3><p>Use edicts to name output indexes. Use a pointer for remaining, unallocated amount.</p></article>
-          <article><b>04</b><h3>Verify</h3><p>Decode the finalized OP_RETURN payload and compare the indexed per-output result after confirmation.</p></article>
-        </div>
+    <section id="journey"><div class="shell">
+      <div class="section-heading"><div><div class="eyebrow">From first pour to next owner</div><h2>Etch. Mint. Allocate. Belong.</h2></div><p>Mezcal combines a readable message with the final Bitcoin transaction shape. Each confirmed action adds another visible chapter to the asset.</p></div>
+      <div class="flow">
+        <article><b>01</b><h3>Etch</h3><p>A name, symbol, divisibility, and mint story give the asset its identity.</p></article>
+        <article><b>02</b><h3>Mint</h3><p>People participate according to the asset's on-chain terms.</p></article>
+        <article><b>03</b><h3>Allocate</h3><p>Edicts and a pointer direct amounts to Bitcoin outputs.</p></article>
+        <article><b>04</b><h3>Own</h3><p>Confirmed outputs carry the asset under the holder's keys.</p></article>
       </div>
-    </section>
+    </div></section>
 
-    <section>
-      <div class="shell">
-        <div class="section-heading">
-          <div><div class="eyebrow">Visual provenance</div><h2>Official by design.</h2></div>
-          <p>The Mezcal green, yellow, gold, black panel system, favicon, and type direction are drawn directly from the official site and project repository.</p>
-        </div>
-        <div class="provenance"><img src="https://mezcal.sh/favicon.ico" alt="Official Mezcal favicon"><div><strong>Imported with attribution.</strong> Visual tokens and source snippets are documented in <a href="ATTRIBUTION.md">ATTRIBUTION.md</a>, including pinned source revisions.</div></div>
-      </div>
-    </section>
+    <section id="control"><div class="shell">
+      <div class="section-heading"><div><div class="eyebrow">Your keys, your pour</div><h2>See the whole transaction before you sign.</h2></div><p>The readable message tells part of the story; the output layout completes it. Both deserve a final look in your wallet.</p></div>
+      <div class="callout"><strong>Keep every detail intentional.</strong> Check the asset identity, amount, destination output, pointer, recipient, and miner fee. Malformed details can invalidate the asset action even when the Bitcoin transaction itself confirms.</div>
+      <div class="source-list" style="margin-top:16px"><a class="source" href="https://mezcal.sh"><span>Enter the official Mezcal experience</span><small>OPEN ↗</small></a><a class="source" href="https://github.com/bitcoinuniverse"><span>Discover Bitcoin Universe</span><small>OPEN ↗</small></a></div>
+    </div></section>
 
-    <section id="sources">
-      <div class="shell">
-        <div class="section-heading">
-          <div><div class="eyebrow">Source trail</div><h2>Use the active implementation.</h2></div>
-          <p>These are primary sources for current behavior. Read the implementation again before building a production transaction.</p>
-        </div>
-        <div class="source-list">
-          <a class="source" href="https://mezcal.sh" target="_blank" rel="noreferrer"><span>Official Mezcal application</span><small>OPEN ↗</small></a>
-          <a class="source" href="https://github.com/bitapeslabs/mezcal" target="_blank" rel="noreferrer"><span>Protocol &amp; indexer repository</span><small>OPEN ↗</small></a>
-          <a class="source" href="https://github.com/bitapeslabs/mezcal-cli" target="_blank" rel="noreferrer"><span>Official Mezcal CLI</span><small>OPEN ↗</small></a>
-          <a class="source" href="ATTRIBUTION.md"><span>Asset &amp; code attribution</span><small>READ →</small></a>
-        </div>
-      </div>
-    </section>
+    <section><div class="shell"><div class="provenance"><img src="https://mezcal.sh/favicon.ico" alt="Mezcal symbol"><div><strong>A visual toast to Mezcal.</strong> The favicon and green, yellow, gold, and black cues celebrate the <a href="https://mezcal.sh">official Mezcal experience</a>.</div></div></div></section>
   </main>
-
-  <footer class="footer"><div class="shell">Bitcoin Universe documentation. Protocol specifics are sourced and attributed in <a href="ATTRIBUTION.md">ATTRIBUTION.md</a>.</div></footer>
+  <footer class="footer"><div class="shell">Mezcal, presented by <a href="https://github.com/bitcoinuniverse">Bitcoin Universe</a>. Review every Bitcoin transaction before signing.</div></footer>
 </body>
 </html>
