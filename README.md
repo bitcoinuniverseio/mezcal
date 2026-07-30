@@ -1,27 +1,25 @@
-# Mezcal documentation
+# Mezcal
 
-Bitcoin Universe documentation for Mezcal, rebuilt from the official product site, protocol repository, validator, and CLI.
+A cleaner pour for Bitcoin assets.
 
-## Documentation pages
+Mezcal brings Runes-inspired assets to Bitcoin through readable UTF-8 JSON placed directly after `OP_RETURN`. Etchings, mints, and output allocations come together in a format people can inspect and communities can rally around.
 
-- [Overview](index.html): protocol model, branded visual system, and source trail
-- [Reference](reference.html): current Mezcalstone schema, validated payloads, and field rules
-- [CLI and build guide](guide.html): official commands and a production transaction checklist
-- [Attribution](ATTRIBUTION.md): official colors, visuals, fonts, code sources, and pinned revisions
+## Explore
 
-## What is covered
+- [Enter the Mezcal experience](https://bitcoinuniverse.github.io/mezcal/)
+- [Visit Mezcal](https://mezcal.sh)
+- [Discover Bitcoin Universe](https://github.com/bitcoinuniverse)
 
-Mezcal uses a UTF-8 JSON Mezcalstone directly after an OP_RETURN. The current reference validator accepts only known fields and treats malformed data, bad edict output indexes, and invalid zero-block IDs as cenotaph conditions.
+## Why it stands out
 
-The reference page includes the three accepted protocol identifiers, the strict-schema surface, etching, mint, edict, pointer, priced mint, and flex mint guidance. The guide includes supported Mezcal CLI commands from the official CLI README.
+- **Readable by design.** The Mezcalstone is JSON, making the intent easier to inspect.
+- **Bitcoin-native ownership.** Asset amounts are allocated to transaction outputs.
+- **Made for expressive launches.** Etching, mint terms, edicts, and pointers shape how an asset enters the world and moves.
 
-## Primary sources
+## Stay in control
 
-- [Mezcal application](https://mezcal.sh)
-- [Mezcal protocol and indexer](https://github.com/bitapeslabs/mezcal)
-- [Mezcalstone validator, pinned source revision](https://github.com/bitapeslabs/mezcal/blob/0f3323ffc1c657ad529529f04543b5ba93250fd6/src/lib/mezcalstone.ts)
-- [Mezcal CLI, pinned source revision](https://github.com/bitapeslabs/mezcal-cli/blob/cc232a2523a9b459868e0f5aa72c9a4fe151c1a7/README.md)
+Before signing, check the asset identity, amount, destination output, pointer, recipient, and miner fee. The final transaction shape determines allocation, and malformed details can invalidate the asset action even when the Bitcoin transaction itself confirms.
 
-## Scope
+## Visual credit
 
-This site is a documentation and integration aid. For a real transaction, validate the current upstream parser and inspect the finalized Bitcoin transaction before signing.
+The favicon and green, yellow, gold, and black visual cues displayed on the site celebrate the [official Mezcal experience](https://mezcal.sh). Mezcal names and artwork remain associated with their respective creators.
