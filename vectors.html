@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mezcal test vectors | valid and invalid payloads</title>
+<meta name="description" content="Worked Mezcal test vectors: valid payloads, cenotaph payloads, and payloads that are ignored without burning, each with its hex encoding and expected outcome.">
+<link rel="canonical" href="https://bitcoinuniverseio.github.io/mezcal/vectors.html">
+<meta name="theme-color" content="#a8442a" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17120f" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Bitcoin Universe protocol documentation">
+<meta property="og:title" content="Mezcal test vectors">
+<meta property="og:description" content="Valid, cenotaph, and silently ignored Mezcal payloads with hex encodings and the outcome each one must produce.">
+<meta property="og:url" content="https://bitcoinuniverseio.github.io/mezcal/vectors.html">
+<meta property="og:image" content="https://bitcoinuniverseio.github.io/mezcal/og-mezcal.svg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+  <div class="shell masthead-inner">
+    <a class="brand" href="./" aria-label="Mezcal protocol documentation, home">
+      <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+        <path class="dia-clay" d="M12 9h16l-3 5c4 3 6 7 6 11 0 6-5 10-11 10S9 31 9 25c0-4 2-8 6-11z"/>
+        <path class="dia-agave" d="M14 25h12M15.5 30h9"/>
+      </svg>
+      <span>Mezcal<small>Protocol documentation</small></span>
+    </a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="./">Overview</a>
+      <a href="spec.html">Specification</a>
+      <a href="guide.html">Guide</a>
+      <a href="reference.html">Reference</a>
+      <a href="vectors.html" aria-current="page">Test vectors</a>
+      <a href="validator.html">Validator</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <div class="tools">
+      <div class="search-wrap">
+        <label class="sr-only" for="site-search">Search this documentation</label>
+        <input id="site-search" type="search" placeholder="Search (press /)" autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden role="region" aria-label="Search results"></div>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" type="button" hidden>Kiln</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="shell">
+
+    <section aria-labelledby="title">
+      <p class="eyebrow">Conformance</p>
+      <h1 id="title">Test vectors</h1>
+      <p class="lede">Payloads with their exact hex encoding and the outcome each one must produce. The expected outcomes follow the rules on the <a href="spec.html">specification</a> page, which are taken from the reference implementation at revision <code>0f3323ff</code>. Paste any of these into the <a href="validator.html">validator</a> to see the same checks applied field by field.</p>
+      <div class="note">
+        <p><strong>How to read a vector.</strong> The hex is the payload only: the bytes pushed after <code>OP_RETURN</code>, not the whole script. Prepend <code>0x6a</code> and a push prefix to get the script. Outcomes that depend on the surrounding transaction state the shape they assume.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="valid-h">
+      <h2 id="valid-h">Valid payloads</h2>
+      <p>Each of these parses, validates, and does exactly what it says. None of them burns anything the transaction did not aim at the OP_RETURN output.</p>
+      <div class="cards vectors">
+<article class="card">
+<p class="eyebrow">V-1 &middot; valid</p>
+<h3>Minimal transfer</h3>
+<pre><code>{"p":"mezcal","edicts":[["899284:20","100",0]]}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c22656469637473223a5b5b223839393238343a3230222c22313030222c305d5d7d</code></p>
+<p><b>Transaction shape.</b> 3 outputs: recipient, change, OP_RETURN</p>
+<p><b>Expected outcome.</b> 100 base units of 899284:20 to vout 0. The rest of the pool follows R-1 to vout 0 as well, because no pointer is given and vout 0 is the first non-OP_RETURN output.</p>
+</article>
+<article class="card">
+<p class="eyebrow">V-2 &middot; valid</p>
+<h3>Move the whole balance</h3>
+<pre><code>{"p":"mezcal","edicts":[["899284:20","0",0]]}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c22656469637473223a5b5b223839393238343a3230222c2230222c305d5d7d</code></p>
+<p><b>Transaction shape.</b> 2 outputs: recipient, OP_RETURN</p>
+<p><b>Expected outcome.</b> Amount 0 allocates everything remaining for that asset (A-5). Nothing is left for the remainder sweep.</p>
+</article>
+<article class="card">
+<p class="eyebrow">V-3 &middot; valid</p>
+<h3>Transfer with change</h3>
+<pre><code>{"p":"https://mezcal.sh","edicts":[["899284:20","2500000000",0]],"pointer":1}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a2268747470733a2f2f6d657a63616c2e7368222c22656469637473223a5b5b223839393238343a3230222c2232353030303030303030222c305d5d2c22706f696e746572223a317d</code></p>
+<p><b>Transaction shape.</b> 3 outputs: recipient, change, OP_RETURN</p>
+<p><b>Expected outcome.</b> 2500000000 base units to vout 0, everything left to vout 1 by the pointer (R-1).</p>
+</article>
+<article class="card">
+<p class="eyebrow">V-4 &middot; valid</p>
+<h3>Mint</h3>
+<pre><code>{"p":"mezcal","mint":"899284:20"}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c226d696e74223a223839393238343a3230227d</code></p>
+<p><b>Transaction shape.</b> 2 outputs: receipt, OP_RETURN</p>
+<p><b>Expected outcome.</b> If the window is open, the cap allows it, and any price terms are paid, the minted units enter the pool and land on vout 0 by R-1.</p>
+</article>
+<article class="card">
+<p class="eyebrow">V-5 &middot; valid</p>
+<h3>Etch and allocate the premine</h3>
+<pre><code>{"p":"mezcal","etching":{"mezcal":"agave-pot","symbol":"◉","divisibility":6,"premine":"1000000000","terms":null},"edicts":[["0:0","0",0]]}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c2265746368696e67223a7b226d657a63616c223a2261676176652d706f74222c2273796d626f6c223a22e29789222c2264697669736962696c697479223a362c227072656d696e65223a2231303030303030303030222c227465726d73223a6e756c6c7d2c22656469637473223a5b5b22303a30222c2230222c305d5d7d</code></p>
+<p><b>Transaction shape.</b> 2 outputs: receipt, OP_RETURN</p>
+<p><b>Expected outcome.</b> The asset is created with id block:tx of this transaction. 0:0 is rewritten to that id (I-4) and the amount 0 allocates the whole premine to vout 0. terms null makes the asset unmintable (E-11).</p>
+</article>
+<article class="card">
+<p class="eyebrow">V-6 &middot; valid</p>
+<h3>Instruction with no operation</h3>
+<pre><code>{"p":"mezcal"}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c227d</code></p>
+<p><b>Transaction shape.</b> 2 outputs: recipient, OP_RETURN</p>
+<p><b>Expected outcome.</b> Valid and legal (P-6). Every balance on the inputs sweeps to vout 0.</p>
+</article>
+<article class="card">
+<p class="eyebrow">V-7 &middot; valid</p>
+<h3>Deliberate burn</h3>
+<pre><code>{"p":"https://mezcal.sh","edicts":[["899284:20","1000000000",1]]}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a2268747470733a2f2f6d657a63616c2e7368222c22656469637473223a5b5b223839393238343a3230222c2231303030303030303030222c315d5d7d</code></p>
+<p><b>Transaction shape.</b> 2 outputs: recipient, OP_RETURN at index 1</p>
+<p><b>Expected outcome.</b> 1000000000 base units are allocated to the OP_RETURN output and destroyed (A-8, B-1). The remainder sweeps to vout 0.</p>
+</article>
+<article class="card">
+<p class="eyebrow">V-8 &middot; valid</p>
+<h3>Object form edict</h3>
+<pre><code>{"p":"mezcal","edicts":[{"id":"899284:20","amount":"100","output":0}]}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c22656469637473223a5b7b226964223a223839393238343a3230222c22616d6f756e74223a22313030222c226f7574707574223a307d5d7d</code></p>
+<p><b>Transaction shape.</b> 3 outputs</p>
+<p><b>Expected outcome.</b> Identical in effect to V-1. The object and tuple forms are equivalent (P-4), and the object form costs more bytes.</p>
+</article>
+<article class="card">
+<p class="eyebrow">V-10 &middot; valid</p>
+<h3>Over-allocation is clamped</h3>
+<pre><code>{"p":"mezcal","edicts":[["899284:20","999999999999999",0]]}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c22656469637473223a5b5b223839393238343a3230222c22393939393939393939393939393939222c305d5d7d</code></p>
+<p><b>Transaction shape.</b> 2 outputs: recipient, OP_RETURN</p>
+<p><b>Expected outcome.</b> If the pool holds less than the stated amount, the edict is reduced to the pool (A-6). The transaction is not a cenotaph.</p>
+</article>
+      </div>
+    </section>
+
+    <section aria-labelledby="ceno-h">
+      <h2 id="ceno-h">Cenotaph payloads</h2>
+      <p>Each of these makes the whole transaction a cenotaph. The Bitcoin transaction still confirms and still pays its fee; every Mezcal balance carried by its inputs is destroyed.</p>
+      <div class="cards vectors">
+<article class="card">
+<p class="eyebrow">X-a &middot; cenotaph</p>
+<h3>Not JSON</h3>
+<pre><code>hello mezcal</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>68656c6c6f206d657a63616c</code></p>
+<p><b>Rule.</b> C-6</p>
+<p><b>Expected outcome.</b> Cenotaph. The payload decodes as UTF-8 but does not parse as JSON. Every Mezcal balance on the inputs is burnt.</p>
+</article>
+<article class="card">
+<p class="eyebrow">X-b &middot; cenotaph</p>
+<h3>Top level is an array</h3>
+<pre><code>[{"p":"mezcal"}]</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>5b7b2270223a226d657a63616c227d5d</code></p>
+<p><b>Rule.</b> P-1</p>
+<p><b>Expected outcome.</b> Cenotaph. The parsed value must be an object.</p>
+</article>
+<article class="card">
+<p class="eyebrow">X-c &middot; cenotaph</p>
+<h3>Unknown top-level key</h3>
+<pre><code>{"p":"mezcal","ops":[]}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c226f7073223a5b5d7d</code></p>
+<p><b>Rule.</b> P-2</p>
+<p><b>Expected outcome.</b> Cenotaph. Validation is strict; an unknown key is fatal.</p>
+</article>
+<article class="card">
+<p class="eyebrow">X-d &middot; cenotaph</p>
+<h3>Wrong protocol tag</h3>
+<pre><code>{"p":"https://mezcal.sh/","edicts":[["1:0","1",0]]}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a2268747470733a2f2f6d657a63616c2e73682f222c22656469637473223a5b5b22313a30222c2231222c305d5d7d</code></p>
+<p><b>Rule.</b> P-3</p>
+<p><b>Expected outcome.</b> Cenotaph. A trailing slash is not one of the three accepted literals.</p>
+</article>
+<article class="card">
+<p class="eyebrow">X-e &middot; cenotaph</p>
+<h3>Amount as a JSON number</h3>
+<pre><code>{"p":"mezcal","edicts":[["899284:20",100,0]]}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c22656469637473223a5b5b223839393238343a3230222c3130302c305d5d7d</code></p>
+<p><b>Rule.</b> U-1</p>
+<p><b>Expected outcome.</b> Cenotaph. Amounts must be strings.</p>
+</article>
+<article class="card">
+<p class="eyebrow">X-f &middot; cenotaph</p>
+<h3>Output index equal to the output count</h3>
+<pre><code>{"p":"mezcal","edicts":[["899284:20","100",3]]}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c22656469637473223a5b5b223839393238343a3230222c22313030222c335d5d7d</code></p>
+<p><b>Rule.</b> A-1, X-7</p>
+<p><b>Expected outcome.</b> Cenotaph. With 3 outputs the last index is 2. Index 3 is rejected before allocation runs.</p>
+</article>
+<article class="card">
+<p class="eyebrow">X-g &middot; cenotaph</p>
+<h3>Block zero id</h3>
+<pre><code>{"p":"mezcal","edicts":[["0:5","100",0]]}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c22656469637473223a5b5b22303a35222c22313030222c305d5d7d</code></p>
+<p><b>Rule.</b> I-5</p>
+<p><b>Expected outcome.</b> Cenotaph. 0:0 is the only permitted block-zero id.</p>
+</article>
+<article class="card">
+<p class="eyebrow">X-h &middot; cenotaph</p>
+<h3>Divisibility out of range</h3>
+<pre><code>{"p":"mezcal","etching":{"mezcal":"over","symbol":"o","divisibility":19,"premine":"0","terms":null}}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c2265746368696e67223a7b226d657a63616c223a226f766572222c2273796d626f6c223a226f222c2264697669736962696c697479223a31392c227072656d696e65223a2230222c227465726d73223a6e756c6c7d7d</code></p>
+<p><b>Rule.</b> E-4</p>
+<p><b>Expected outcome.</b> Cenotaph. Divisibility must be 0 to 18.</p>
+</article>
+<article class="card">
+<p class="eyebrow">X-i &middot; cenotaph</p>
+<h3>Symbol of two code points</h3>
+<pre><code>{"p":"mezcal","etching":{"mezcal":"two","symbol":"ab","divisibility":0,"premine":"0","terms":null}}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c2265746368696e67223a7b226d657a63616c223a2274776f222c2273796d626f6c223a226162222c2264697669736962696c697479223a302c227072656d696e65223a2230222c227465726d73223a6e756c6c7d7d</code></p>
+<p><b>Rule.</b> E-3</p>
+<p><b>Expected outcome.</b> Cenotaph. The symbol must be exactly one code point.</p>
+</article>
+<article class="card">
+<p class="eyebrow">X-j &middot; cenotaph</p>
+<h3>Name with an uppercase letter</h3>
+<pre><code>{"p":"mezcal","etching":{"mezcal":"Agave","symbol":"a","divisibility":0,"premine":"0","terms":null}}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c2265746368696e67223a7b226d657a63616c223a224167617665222c2273796d626f6c223a2261222c2264697669736962696c697479223a302c227072656d696e65223a2230222c227465726d73223a6e756c6c7d7d</code></p>
+<p><b>Rule.</b> E-2</p>
+<p><b>Expected outcome.</b> Cenotaph. Names match ^[a-z0-9-]+$ only.</p>
+</article>
+<article class="card">
+<p class="eyebrow">X-k &middot; cenotaph</p>
+<h3>Missing protocol tag</h3>
+<pre><code>{"edicts":[["899284:20","100",0]]}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b22656469637473223a5b5b223839393238343a3230222c22313030222c305d5d7d</code></p>
+<p><b>Rule.</b> P-3</p>
+<p><b>Expected outcome.</b> Cenotaph. p is required.</p>
+</article>
+      </div>
+    </section>
+
+    <section aria-labelledby="ignored-h">
+      <h2 id="ignored-h">Payloads that do nothing, safely</h2>
+      <p>These are the cases most easily mistaken for cenotaphs. The instruction is valid, the operation simply has no effect, and no balance is burnt.</p>
+      <div class="cards vectors">
+<article class="card">
+<p class="eyebrow">N-1 &middot; ignored, not burnt</p>
+<h3>Mint of an unknown asset</h3>
+<pre><code>{"p":"mezcal","mint":"999999:0"}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c226d696e74223a223939393939393a30227d</code></p>
+<p><b>Rule.</b> M-1</p>
+<p><b>Expected outcome.</b> Nothing is minted. The payload is valid, so nothing is burnt and balances sweep normally.</p>
+</article>
+<article class="card">
+<p class="eyebrow">N-2 &middot; ignored, not burnt</p>
+<h3>Etching a name already taken</h3>
+<pre><code>{"p":"mezcal","etching":{"mezcal":"taco","symbol":"t","divisibility":0,"premine":"1000","terms":null}}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c2265746368696e67223a7b226d657a63616c223a227461636f222c2273796d626f6c223a2274222c2264697669736962696c697479223a302c227072656d696e65223a2231303030222c227465726d73223a6e756c6c7d7d</code></p>
+<p><b>Rule.</b> E-6</p>
+<p><b>Expected outcome.</b> The etching is ignored, including its premine. No cenotaph, no burn.</p>
+</article>
+<article class="card">
+<p class="eyebrow">N-3 &middot; ignored, not burnt</p>
+<h3>Edict for an asset with no balance here</h3>
+<pre><code>{"p":"mezcal","edicts":[["1:0","100",0]]}</code></pre>
+<p class="hexline"><b>Payload hex</b><br><code>7b2270223a226d657a63616c222c22656469637473223a5b5b22313a30222c22313030222c305d5d7d</code></p>
+<p><b>Rule.</b> A-4</p>
+<p><b>Expected outcome.</b> The edict is skipped. Balances of other assets still sweep by R-1.</p>
+</article>
+<article class="card">
+<p class="eyebrow">N-4 &middot; ignored, not burnt</p>
+<h3>No OP_RETURN output at all</h3>
+<p><em>No OP_RETURN output.</em></p>
+<p><b>Rule.</b> C-2</p>
+<p><b>Expected outcome.</b> Not a cenotaph. Balances on the inputs sweep to the first output.</p>
+</article>
+      </div>
+    </section>
+
+    <section aria-labelledby="using-h">
+      <h2 id="using-h">Using these in a test suite</h2>
+      <ol>
+        <li>Build a transaction with the stated output shape, putting the payload in an OP_RETURN output with a single push.</li>
+        <li>Assert the decoded result: a parsed mezcalstone, or a cenotaph flag.</li>
+        <li>Assert the balance movement per output, in base units, as an exact integer.</li>
+        <li>For the cenotaph cases, assert that every input balance is burnt, not merely unmoved.</li>
+        <li>For the ignored cases, assert the opposite: nothing burnt, and the remainder swept by the pointer rule.</li>
+      </ol>
+      <p>If your implementation disagrees with a vector, the <a href="spec.html">specification</a> page names the rule behind it. If you believe a vector is wrong, open an issue on <a href="https://github.com/bitcoinuniverseio/mezcal/issues">this repository</a> with the transaction you tested against.</p>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <h2>Pages</h2>
+        <ul>
+          <li><a href="./">Overview</a></li>
+          <li><a href="spec.html">Specification</a></li>
+          <li><a href="guide.html">Guide</a></li>
+          <li><a href="reference.html">Reference</a></li>
+          <li><a href="vectors.html">Test vectors</a></li>
+          <li><a href="validator.html">Validator</a></li>
+          <li><a href="changelog.html">Changelog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Document</h2>
+        <dl>
+          <dt>Owning repository</dt><dd><a href="https://github.com/bitcoinuniverseio/mezcal">bitcoinuniverseio/mezcal</a></dd>
+          <dt>Source path</dt><dd>vectors.html</dd>
+          <dt>Documentation version</dt><dd>2026.09.01</dd>
+        </dl>
+      </div>
+      <div>
+        <h2>Subject</h2>
+        <dl>
+          <dt>Lifecycle</dt><dd>beta</dd>
+          <dt>Chain and network</dt><dd>bitcoin / mainnet</dd>
+          <dt>Upstream revision</dt><dd>bitapeslabs/mezcal @ 0f3323f</dd>
+          <dt>Last verified</dt><dd>2026-09-01</dd>
+        </dl>
+      </div>
+      <div>
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://docs.bitcoinuniverse.io">docs.bitcoinuniverse.io</a></li>
+          <li><a href="https://github.com/bitcoinuniverseio/mezcal/edit/main/vectors.html">Edit this page on GitHub</a></li>
+          <li><a href="https://github.com/bitcoinuniverseio/mezcal/blob/main/SECURITY.md">Security policy</a></li>
+          <li><a href="https://mezcal.sh">mezcal.sh</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="colophon">Documentation published by Bitcoin Universe. Mezcal is an independent protocol by BitApes Labs; names and artwork remain with their creators, and this documentation implies no affiliation or endorsement. Verify every transaction before signing.</p>
+  </div>
+</footer>
+<script src="site.js" defer></script>
+</body>
+</html>

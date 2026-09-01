@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "mezcal",
+  "name": "Mezcal",
+  "classification": "protocol",
+  "repository": "bitcoinuniverseio/mezcal",
+  "documentationUrl": "https://docs.bitcoinuniverse.io/protocols/mezcal",
+  "docsRoot": ".",
+  "sourceRef": "main",
+  "releasedRef": "f4d50adf7308e277ab290ac2b6b4c9f4836a5676",
+  "releaseVersion": "2026.09.01",
+  "lifecycle": "beta",
+  "chains": [
+    {
+      "chain": "bitcoin",
+      "networks": ["mainnet"]
+    }
+  ],
+  "protocols": ["mezcal"],
+  "audiences": [
+    "user",
+    "collector",
+    "app-developer",
+    "protocol-implementer",
+    "indexer-operator"
+  ],
+  "specifications": ["spec.html"],
+  "owners": ["bitcoinuniverseio"],
+  "upstream": {
+    "project": "bitapeslabs/mezcal",
+    "url": "https://github.com/bitapeslabs/mezcal",
+    "license": "NOASSERTION",
+    "relationship": "derived",
+    "divergenceSummary": "Mezcal originated at BitApes Labs. This repository documents the protocol as the reference implementation behaves at revision 0f3323ffc1c657ad529529f04543b5ba93250fd6, and marks Bitcoin Universe indexing and marketplace decisions as Universe-specific. The upstream repository declares no licence, so no licence is asserted for it here."
+  },
+  "lastVerified": {
+    "commit": "f4d50adf7308e277ab290ac2b6b4c9f4836a5676",
+    "timestamp": "2026-09-01T00:00:00Z"
+  },
+  "securityClassification": "public"
+}

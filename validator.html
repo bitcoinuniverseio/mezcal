@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mezcal payload validator and builder</title>
+<meta name="description" content="Validate a Mezcal OP_RETURN payload field by field, or build a byte-correct one with size and fee notes. Runs entirely in your browser; nothing is transmitted.">
+<link rel="canonical" href="https://bitcoinuniverseio.github.io/mezcal/validator.html">
+<meta name="theme-color" content="#a8442a" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17120f" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Bitcoin Universe protocol documentation">
+<meta property="og:title" content="Mezcal payload validator and builder">
+<meta property="og:description" content="Paste an OP_RETURN payload and see it checked rule by rule, or build a byte-correct one. Client-side only.">
+<meta property="og:url" content="https://bitcoinuniverseio.github.io/mezcal/validator.html">
+<meta property="og:image" content="https://bitcoinuniverseio.github.io/mezcal/og-mezcal.svg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+  <div class="shell masthead-inner">
+    <a class="brand" href="./" aria-label="Mezcal protocol documentation, home">
+      <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+        <path class="dia-clay" d="M12 9h16l-3 5c4 3 6 7 6 11 0 6-5 10-11 10S9 31 9 25c0-4 2-8 6-11z"/>
+        <path class="dia-agave" d="M14 25h12M15.5 30h9"/>
+      </svg>
+      <span>Mezcal<small>Protocol documentation</small></span>
+    </a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="./">Overview</a>
+      <a href="spec.html">Specification</a>
+      <a href="guide.html">Guide</a>
+      <a href="reference.html">Reference</a>
+      <a href="vectors.html">Test vectors</a>
+      <a href="validator.html" aria-current="page">Validator</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <div class="tools">
+      <div class="search-wrap">
+        <label class="sr-only" for="site-search">Search this documentation</label>
+        <input id="site-search" type="search" placeholder="Search (press /)" autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden role="region" aria-label="Search results"></div>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" type="button" hidden>Kiln</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="shell">
+
+    <section aria-labelledby="title">
+      <p class="eyebrow">Tool</p>
+      <h1 id="title">Payload validator and builder</h1>
+      <p class="lede">Check a Mezcal payload before it costs you anything, or build one that is byte-correct. Both modes run in this page: nothing you paste is sent anywhere, stored, or logged.</p>
+      <dl class="facts">
+        <div><dt>Rules</dt><dd>bitapeslabs/mezcal @ 0f3323ff</dd></div>
+        <div><dt>Network</dt><dd>bitcoin / mainnet</dd></div>
+        <div><dt>Runs</dt><dd>in your browser only</dd></div>
+        <div><dt>Document version</dt><dd>2026.09.01</dd></div>
+      </dl>
+      <noscript>
+        <div class="noscript-note">
+          <p><strong>This tool needs JavaScript.</strong> Everything it checks is written out in full on the <a href="spec.html">specification</a> page, and worked examples with hex encodings are on the <a href="vectors.html">test vectors</a> page. No other part of this site requires scripting.</p>
+        </div>
+      </noscript>
+    </section>
+
+    <section aria-labelledby="tool-h">
+      <h2 id="tool-h" class="sr-only">The tool</h2>
+      <div class="mode-switch" role="group" aria-label="Tool mode">
+        <button type="button" data-mode="inspect" aria-pressed="true">Inspect a payload</button>
+        <button type="button" data-mode="build" aria-pressed="false">Build a payload</button>
+      </div>
+
+      <div class="tool">
+        <div>
+          <div class="panel" id="panel-inspect">
+            <h3>Inspect</h3>
+            <form id="inspect-form">
+              <div class="field">
+                <label for="payload-input">Payload</label>
+                <textarea id="payload-input" spellcheck="false" placeholder='Paste hex, a whole OP_RETURN script starting with 6a, or the JSON itself'>{"p":"https://mezcal.sh","edicts":[["899284:20","7700000000",0]]}</textarea>
+                <p class="hint">Hex, a full <code>scriptPubKey</code>, or raw JSON. Detected automatically.</p>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="payload-outputs">Number of outputs</label>
+                  <input id="payload-outputs" type="number" min="0" step="1" value="3" inputmode="numeric">
+                  <p class="hint">Optional. Enables the output-index and remainder checks.</p>
+                </div>
+                <div class="field">
+                  <label for="payload-opreturn">OP_RETURN output index</label>
+                  <input id="payload-opreturn" type="number" min="0" step="1" value="2" inputmode="numeric">
+                  <p class="hint">Optional. Used to spot deliberate and accidental burns.</p>
+                </div>
+              </div>
+              <button class="button" type="submit">Check payload</button>
+            </form>
+          </div>
+
+          <div class="panel" id="panel-build" hidden>
+            <h3>Build</h3>
+            <form id="build-form">
+              <div class="field">
+                <label for="build-p">Protocol tag</label>
+                <select id="build-p">
+                  <option value="https://mezcal.sh">https://mezcal.sh</option>
+                  <option value="mezcal">mezcal (11 bytes smaller)</option>
+                  <option value="https://t.me/mezcalbtc">https://t.me/mezcalbtc</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="build-id">Asset id</label>
+                <input id="build-id" type="text" value="899284:20" spellcheck="false" autocomplete="off">
+                <p class="hint">The <code>block:tx</code> id, not the name.</p>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="build-amount">Amount</label>
+                  <input id="build-amount" type="text" value="77" spellcheck="false" autocomplete="off" inputmode="decimal">
+                </div>
+                <div class="field">
+                  <label for="build-scale">Amount is in</label>
+                  <select id="build-scale">
+                    <option value="display">display units</option>
+                    <option value="base">base units</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="build-decimals">Divisibility</label>
+                  <input id="build-decimals" type="number" min="0" max="18" step="1" value="8" inputmode="numeric">
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="build-output">Output index</label>
+                  <input id="build-output" type="number" min="0" max="255" step="1" value="0" inputmode="numeric">
+                </div>
+                <div class="field">
+                  <label for="build-pointer">Pointer</label>
+                  <input id="build-pointer" type="text" value="" placeholder="none" spellcheck="false" inputmode="numeric">
+                  <p class="hint">Leave empty to let the remainder fall to the first non-OP_RETURN output.</p>
+                </div>
+                <div class="field">
+                  <label for="build-feerate">Fee rate, sat/vB</label>
+                  <input id="build-feerate" type="number" min="1" step="1" value="5" inputmode="numeric">
+                </div>
+              </div>
+              <button class="button" type="submit">Build payload</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Result</h3>
+          <div id="payload-report" aria-live="polite"><p class="out">Paste a payload to see it checked field by field.</p></div>
+          <div id="build-report" aria-live="polite" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="samples-h">
+      <h2 id="samples-h">Try a sample</h2>
+      <p>Each button loads a payload into the inspector. The first three are valid; the last three are cenotaphs that would burn every Mezcal balance on the inputs.</p>
+      <div class="actions">
+        <button class="button ghost" type="button" data-sample='{"p":"https://mezcal.sh","edicts":[["899284:20","2500000000",0]],"pointer":1}'>Transfer with change</button>
+        <button class="button ghost" type="button" data-sample='{"p":"mezcal","mint":"899284:20"}'>Mint</button>
+        <button class="button ghost" type="button" data-sample='{"p":"mezcal","etching":{"mezcal":"agave-pot","symbol":"&#9673;","divisibility":6,"premine":"1000000000","terms":null},"edicts":[["0:0","0",0]]}'>Etch and allocate</button>
+        <button class="button ghost" type="button" data-sample='{"p":"https://mezcal.sh/","edicts":[["1:0","1",0]]}'>Wrong protocol tag</button>
+        <button class="button ghost" type="button" data-sample='{"p":"mezcal","edicts":[["899284:20",100,0]]}'>Amount as a number</button>
+        <button class="button ghost" type="button" data-sample='{"p":"mezcal","edicts":[["899284:20","100",3]]}'>Output index past the end</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="scope-h">
+      <h2 id="scope-h">What this tool does and does not check</h2>
+      <div class="cards">
+        <article class="card">
+          <p class="eyebrow">Checked here</p>
+          <h3>Everything in the payload</h3>
+          <ul>
+            <li>Hex, script, and UTF-8 decoding</li>
+            <li>JSON shape and strict key set</li>
+            <li>The protocol tag literal</li>
+            <li>Edict form, id, amount range, output index</li>
+            <li>Etching name, symbol, divisibility, premine, terms, price shape</li>
+            <li>Mint and pointer ranges</li>
+            <li>Where the remainder lands, given your output count</li>
+          </ul>
+        </article>
+        <article class="card">
+          <p class="eyebrow">Not checked here</p>
+          <h3>Everything about the chain</h3>
+          <ul>
+            <li>Whether the asset id exists</li>
+            <li>Whether a name is already taken</li>
+            <li>Whether a mint window is open or a cap is reached</li>
+            <li>Whether price terms are paid by your outputs</li>
+            <li>Whether your inputs hold the balance you are allocating</li>
+            <li>Bitcoin address checksums, beyond a shape check</li>
+          </ul>
+          <p>Those need chain state. This page has none, on purpose: it makes no network requests at all.</p>
+        </article>
+      </div>
+      <div class="warn">
+        <p><strong>A valid payload is not a safe transaction.</strong> The output index, the pointer, and your fee inputs decide where balances actually land. Walk the <a href="guide.html#checklist">signing checklist</a> before you broadcast.</p>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <h2>Pages</h2>
+        <ul>
+          <li><a href="./">Overview</a></li>
+          <li><a href="spec.html">Specification</a></li>
+          <li><a href="guide.html">Guide</a></li>
+          <li><a href="reference.html">Reference</a></li>
+          <li><a href="vectors.html">Test vectors</a></li>
+          <li><a href="validator.html">Validator</a></li>
+          <li><a href="changelog.html">Changelog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Document</h2>
+        <dl>
+          <dt>Owning repository</dt><dd><a href="https://github.com/bitcoinuniverseio/mezcal">bitcoinuniverseio/mezcal</a></dd>
+          <dt>Source path</dt><dd>validator.html</dd>
+          <dt>Documentation version</dt><dd>2026.09.01</dd>
+        </dl>
+      </div>
+      <div>
+        <h2>Subject</h2>
+        <dl>
+          <dt>Lifecycle</dt><dd>beta</dd>
+          <dt>Chain and network</dt><dd>bitcoin / mainnet</dd>
+          <dt>Upstream revision</dt><dd>bitapeslabs/mezcal @ 0f3323f</dd>
+          <dt>Last verified</dt><dd>2026-09-01</dd>
+        </dl>
+      </div>
+      <div>
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://docs.bitcoinuniverse.io">docs.bitcoinuniverse.io</a></li>
+          <li><a href="https://github.com/bitcoinuniverseio/mezcal/edit/main/validator.html">Edit this page on GitHub</a></li>
+          <li><a href="https://github.com/bitcoinuniverseio/mezcal/blob/main/SECURITY.md">Security policy</a></li>
+          <li><a href="https://mezcal.sh">mezcal.sh</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="colophon">Documentation published by Bitcoin Universe. Mezcal is an independent protocol by BitApes Labs; names and artwork remain with their creators, and this documentation implies no affiliation or endorsement. Verify every transaction before signing.</p>
+  </div>
+</footer>
+<script src="site.js" defer></script>
+<script src="validator.js" defer></script>
+</body>
+</html>
