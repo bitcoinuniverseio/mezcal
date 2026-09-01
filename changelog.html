@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mezcal documentation changelog</title>
+<meta name="description" content="Version history of the Mezcal protocol documentation, including what was verified against source code at each revision.">
+<link rel="canonical" href="https://bitcoinuniverseio.github.io/mezcal/changelog.html">
+<meta name="theme-color" content="#a8442a" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17120f" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Bitcoin Universe protocol documentation">
+<meta property="og:title" content="Mezcal documentation changelog">
+<meta property="og:description" content="What changed in this documentation, and what was verified against source at each revision.">
+<meta property="og:url" content="https://bitcoinuniverseio.github.io/mezcal/changelog.html">
+<meta property="og:image" content="https://bitcoinuniverseio.github.io/mezcal/og-mezcal.svg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+  <div class="shell masthead-inner">
+    <a class="brand" href="./" aria-label="Mezcal protocol documentation, home">
+      <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+        <path class="dia-clay" d="M12 9h16l-3 5c4 3 6 7 6 11 0 6-5 10-11 10S9 31 9 25c0-4 2-8 6-11z"/>
+        <path class="dia-agave" d="M14 25h12M15.5 30h9"/>
+      </svg>
+      <span>Mezcal<small>Protocol documentation</small></span>
+    </a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="./">Overview</a>
+      <a href="spec.html">Specification</a>
+      <a href="guide.html">Guide</a>
+      <a href="reference.html">Reference</a>
+      <a href="vectors.html">Test vectors</a>
+      <a href="validator.html">Validator</a>
+      <a href="changelog.html" aria-current="page">Changelog</a>
+    </nav>
+    <div class="tools">
+      <div class="search-wrap">
+        <label class="sr-only" for="site-search">Search this documentation</label>
+        <input id="site-search" type="search" placeholder="Search (press /)" autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden role="region" aria-label="Search results"></div>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" type="button" hidden>Kiln</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="shell">
+
+    <section aria-labelledby="title">
+      <p class="eyebrow">History</p>
+      <h1 id="title">Documentation changelog</h1>
+      <p class="lede">This is the version history of the documentation, not of the Mezcal protocol. The protocol itself carries no version number: its behaviour is defined by the implementation that indexes it, and each entry below records the revision that was read.</p>
+    </section>
+
+    <section aria-labelledby="v-2026-09-01">
+      <h2 id="v-2026-09-01">2026.09.01</h2>
+      <p>Full rebuild. The repository went from a single promotional page to a complete protocol documentation site.</p>
+      <h3>Added</h3>
+      <ul>
+        <li>A normative <a href="spec.html">specification</a> with numbered rules covering the OP_RETURN carrier, the payload grammar, identifiers, base units, etching, minting, edict allocation, the pointer, burning, all eight cenotaph conditions, and the order of evaluation.</li>
+        <li>A <a href="guide.html">guide</a> walking an etch, a mint, a transfer, and a burn with exact payload bytes, plus a signing checklist and a support matrix drawn from the Bitcoin Universe Core protocol registry.</li>
+        <li>A <a href="reference.html">reference</a> covering terminology, confirmation, mempool coverage, reorganization handling, size and fee arithmetic, limitations, security considerations, an implementation checklist, and the byte-exact marketplace buy rule.</li>
+        <li>24 <a href="vectors.html">test vectors</a>: valid payloads, cenotaph payloads, and payloads that do nothing without burning, each with its hex encoding and expected outcome.</li>
+        <li>A client-side <a href="validator.html">payload validator and builder</a> that makes no network requests.</li>
+        <li>Local search over an authored index, a changelog, a 404 page, <code>llms.txt</code>, <code>sitemap.xml</code>, <code>robots.txt</code>, and a <code>docs.manifest.json</code> for the documentation portal.</li>
+        <li>Governance files: <code>SECURITY.md</code>, <code>CONTRIBUTING.md</code>, and <code>SUPPORT.md</code>.</li>
+      </ul>
+      <h3>Verified against source</h3>
+      <ul>
+        <li>Payload grammar, field ranges, and cenotaph conditions: the mezcalstone decoder of <a href="https://github.com/bitapeslabs/mezcal">bitapeslabs/mezcal</a> at <code>0f3323ffc1c657ad529529f04543b5ba93250fd6</code>.</li>
+        <li>Allocation, minting, etching, pointer, and burn behaviour: the indexer and utility modules of the same revision.</li>
+        <li>Genesis block 898750 and the genesis asset <code>1:0</code>: the constants of the same revision.</li>
+        <li>Indexer coverage, confirmation evidence, and reorganization handling: the Bitcoin Universe Mezcal explorer indexer, which pins the revision above as its state schema.</li>
+        <li>Marketplace support state, listing verification, and the derived buy payload: the Bitcoin Universe Core backend protocol registry, listing claim verification, and marketplace service.</li>
+      </ul>
+      <h3>Corrected</h3>
+      <ul>
+        <li>The previous page described Mezcal as Runes-inspired assets in readable JSON, which is accurate, but gave no field names, no limits, and no failure modes. Those facts are now stated exactly.</li>
+        <li>Links that pointed at the wrong GitHub organization were repointed at <code>bitcoinuniverseio</code>.</li>
+        <li>External assets were removed. The site now hosts everything it uses, including its icon, and loads no third-party resource.</li>
+      </ul>
+      <h3>Documented divergences</h3>
+      <ul>
+        <li>Divisibility is capped at 18 by the payload schema, though upstream prose describes a wider range. The schema decides.</li>
+        <li>The Runes-style split rule for an output index equal to the output count is unreachable at this revision, because such a payload is rejected as a cenotaph before allocation runs.</li>
+        <li><code>"pointer": 0</code> is treated as no pointer, because the implementation tests the value for truthiness.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="before">
+      <h2 id="before">Before 2026.09.01</h2>
+      <p>The repository held a single page introducing Mezcal, a stylesheet, a licence, and a visual attribution note. Its factual claims, that Mezcal places readable UTF-8 JSON directly after <code>OP_RETURN</code>, that ownership is carried by transaction outputs, and that malformed details can invalidate the asset action even when the Bitcoin transaction confirms, are all preserved and made precise in the pages above.</p>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <h2>Pages</h2>
+        <ul>
+          <li><a href="./">Overview</a></li>
+          <li><a href="spec.html">Specification</a></li>
+          <li><a href="guide.html">Guide</a></li>
+          <li><a href="reference.html">Reference</a></li>
+          <li><a href="vectors.html">Test vectors</a></li>
+          <li><a href="validator.html">Validator</a></li>
+          <li><a href="changelog.html">Changelog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Document</h2>
+        <dl>
+          <dt>Owning repository</dt><dd><a href="https://github.com/bitcoinuniverseio/mezcal">bitcoinuniverseio/mezcal</a></dd>
+          <dt>Source path</dt><dd>changelog.html</dd>
+          <dt>Documentation version</dt><dd>2026.09.01</dd>
+        </dl>
+      </div>
+      <div>
+        <h2>Subject</h2>
+        <dl>
+          <dt>Lifecycle</dt><dd>beta</dd>
+          <dt>Chain and network</dt><dd>bitcoin / mainnet</dd>
+          <dt>Upstream revision</dt><dd>bitapeslabs/mezcal @ 0f3323f</dd>
+          <dt>Last verified</dt><dd>2026-09-01</dd>
+        </dl>
+      </div>
+      <div>
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://docs.bitcoinuniverse.io">docs.bitcoinuniverse.io</a></li>
+          <li><a href="https://github.com/bitcoinuniverseio/mezcal/edit/main/changelog.html">Edit this page on GitHub</a></li>
+          <li><a href="https://github.com/bitcoinuniverseio/mezcal/blob/main/SECURITY.md">Security policy</a></li>
+          <li><a href="https://mezcal.sh">mezcal.sh</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="colophon">Documentation published by Bitcoin Universe. Mezcal is an independent protocol by BitApes Labs; names and artwork remain with their creators, and this documentation implies no affiliation or endorsement. Verify every transaction before signing.</p>
+  </div>
+</footer>
+<script src="site.js" defer></script>
+</body>
+</html>
