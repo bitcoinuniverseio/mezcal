@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Mezcal protocol documentation">
+  <title>Mezcal protocol documentation</title>
+  <desc>A warm sand card with a line-art clay vessel, the title Mezcal protocol documentation, and the payload form of an edict.</desc>
+  <rect width="1200" height="630" fill="#f6efe4"/>
+  <rect x="28" y="28" width="1144" height="574" rx="26" fill="#fbf6ee" stroke="#d8c5ad" stroke-width="3"/>
+  <g fill="none" stroke="#a8442a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M900 200h160l-27 42c40 30 60 70 60 110 0 63-47 101-113 101s-113-38-113-101c0-40 20-80 60-110z"/>
+  </g>
+  <g fill="none" stroke="#46683f" stroke-width="6" stroke-linecap="round">
+    <path d="M905 392h150M930 434h100"/>
+  </g>
+  <text x="86" y="176" font-family="system-ui,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="6" fill="#46683f">BITCOIN UNIVERSE PROTOCOL DOCUMENTATION</text>
+  <text x="86" y="278" font-family="Iowan Old Style,Palatino,Georgia,serif" font-size="86" fill="#2a1d16">Mezcal</text>
+  <text x="86" y="352" font-family="Iowan Old Style,Palatino,Georgia,serif" font-size="40" fill="#5c483c">Fungible tokens in an OP_RETURN,</text>
+  <text x="86" y="404" font-family="Iowan Old Style,Palatino,Georgia,serif" font-size="40" fill="#5c483c">written in plain JSON.</text>
+  <rect x="86" y="452" width="700" height="88" rx="14" fill="#f1e7d8" stroke="#c0a88a" stroke-width="2"/>
+  <text x="110" y="492" font-family="ui-monospace,Consolas,monospace" font-size="23" fill="#2a1d16">{"p":"https://mezcal.sh",</text>
+  <text x="110" y="522" font-family="ui-monospace,Consolas,monospace" font-size="23" fill="#2a1d16"> "edicts":[["899284:20","7700000000",0]]}</text>
+</svg>

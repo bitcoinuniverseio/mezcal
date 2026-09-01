@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mezcal reference | indexer semantics, fees, limits, security</title>
+<meta name="description" content="Mezcal terminology, indexer semantics for confirmation, mempool and reorgs, size and fee arithmetic, known limitations, security considerations, and the Bitcoin Universe marketplace rules.">
+<link rel="canonical" href="https://bitcoinuniverseio.github.io/mezcal/reference.html">
+<meta name="theme-color" content="#a8442a" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17120f" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Bitcoin Universe protocol documentation">
+<meta property="og:title" content="Mezcal reference">
+<meta property="og:description" content="Indexer semantics, confirmation and reorg behaviour, fee and size arithmetic, limitations, security considerations, and the byte-exact Core marketplace buy rule.">
+<meta property="og:url" content="https://bitcoinuniverseio.github.io/mezcal/reference.html">
+<meta property="og:image" content="https://bitcoinuniverseio.github.io/mezcal/og-mezcal.svg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+  <div class="shell masthead-inner">
+    <a class="brand" href="./" aria-label="Mezcal protocol documentation, home">
+      <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+        <path class="dia-clay" d="M12 9h16l-3 5c4 3 6 7 6 11 0 6-5 10-11 10S9 31 9 25c0-4 2-8 6-11z"/>
+        <path class="dia-agave" d="M14 25h12M15.5 30h9"/>
+      </svg>
+      <span>Mezcal<small>Protocol documentation</small></span>
+    </a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="./">Overview</a>
+      <a href="spec.html">Specification</a>
+      <a href="guide.html">Guide</a>
+      <a href="reference.html" aria-current="page">Reference</a>
+      <a href="vectors.html">Test vectors</a>
+      <a href="validator.html">Validator</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <div class="tools">
+      <div class="search-wrap">
+        <label class="sr-only" for="site-search">Search this documentation</label>
+        <input id="site-search" type="search" placeholder="Search (press /)" autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden role="region" aria-label="Search results"></div>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" type="button" hidden>Kiln</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="shell">
+
+    <section aria-labelledby="title">
+      <p class="eyebrow">Reference</p>
+      <h1 id="title">Mezcal reference</h1>
+      <p class="lede">Terminology, what an indexer must do with confirmations and reorganizations, what a payload costs, where the protocol's sharp edges are, and how the Bitcoin Universe marketplace constrains the one Mezcal payload it builds.</p>
+      <nav class="toc" aria-labelledby="toc-h">
+        <h2 id="toc-h">On this page</h2>
+        <ul>
+          <li><a href="#terms">Terminology</a></li>
+          <li><a href="#indexing">Indexer semantics</a></li>
+          <li><a href="#marketplace">Core marketplace behaviour</a></li>
+          <li><a href="#fees">Size and fee notes</a></li>
+          <li><a href="#limits">Limitations</a></li>
+          <li><a href="#security">Security considerations</a></li>
+          <li><a href="#checklist">Implementation checklist</a></li>
+        </ul>
+      </nav>
+    </section>
+
+    <section aria-labelledby="terms">
+      <h2 id="terms">Terminology</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Term</th><th scope="col">Meaning</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Mezcalstone</th><td>The JSON object carried in the OP_RETURN output. One per transaction, taken from the first such output.</td></tr>
+            <tr><th scope="row">Etching</th><td>The creation of an asset, and the <code>etching</code> object that performs it.</td></tr>
+            <tr><th scope="row">Asset id, protocol id</th><td><code>block:tx</code>. The permanent identifier of an asset. Core's marketplace calls this field the ticker.</td></tr>
+            <tr><th scope="row">Edict</th><td>One allocation instruction: asset id, base-unit amount, output index.</td></tr>
+            <tr><th scope="row">Pointer</th><td>The output index that receives everything the edicts did not allocate.</td></tr>
+            <tr><th scope="row">Unallocated pool</th><td>Per-asset balance inside a transaction being processed: inputs plus premine plus mint, minus what edicts have already moved.</td></tr>
+            <tr><th scope="row">Cenotaph</th><td>A transaction whose instruction is unreadable or invalid. Its payload is discarded and every Mezcal balance on its inputs is burnt.</td></tr>
+            <tr><th scope="row">Base units</th><td>The integer unit of an asset. Display amount times <code>10^divisibility</code>.</td></tr>
+            <tr><th scope="row">Flex mint</th><td>A mint whose amount is derived from the satoshis paid, rather than fixed by the terms.</td></tr>
+            <tr><th scope="row">Turbo</th><td>A boolean flag in an etching, default true. It is recorded with the asset.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="indexing">
+      <h2 id="indexing">Indexer semantics</h2>
+      <p>Mezcal state is a pure function of confirmed Bitcoin blocks. Two indexers that replay the same chain from block 898750 with the same rules must reach the same balances.</p>
+
+      <h3>Confirmation</h3>
+      <ul>
+        <li>Balances and events exist only for confirmed transactions. A transaction in the mempool has no protocol effect yet.</li>
+        <li>The Bitcoin Universe Mezcal indexer will not publish a row before Bitcoin Core confirms the block hash, the block timestamp, and the transaction's membership in that block. Membership is proven with a Merkle transaction proof against an explicit block hash, so a pruned node that no longer holds a required block fails closed rather than guessing.</li>
+        <li>Events carry the block height, the block hash, and a confirmation count derived from the node's own tip.</li>
+      </ul>
+
+      <h3>Mempool</h3>
+      <ul>
+        <li>There is no complete Mezcal mempool feed. Bitcoin Universe reports its Mezcal source coverage as <strong>partial</strong> for exactly this reason, and marks pending activity unavailable rather than inferring it.</li>
+        <li>Unconfirmed activity is never synthesized from local marketplace orders. An order is not protocol state.</li>
+        <li>An application that wants a pending view must decode the mempool itself, and must treat the result as a prediction: a conflicting transaction, a replacement, or a reorganization can change the outcome.</li>
+      </ul>
+
+      <h3>Reorganizations</h3>
+      <figure>
+        <svg viewBox="0 0 700 250" role="img" aria-labelledby="reorgTitle reorgDesc">
+          <title id="reorgTitle">Reorganization handling</title>
+          <desc id="reorgDesc">The indexer keeps a checkpoint of the last confirmed height and hash and a fingerprint for the tail of each ordered stream. When the chain replaces a block, the checkpoint no longer matches, readiness fails, the indexer rewinds to the first changed offset, emits invalidations for events with no surviving source row, and rebuilds balances forward.</desc>
+          <text x="14" y="26" class="dia-t head">Accepted chain</text>
+          <g class="dia-stroke">
+            <rect x="14" y="40" width="76" height="40" rx="8"/>
+            <rect x="102" y="40" width="76" height="40" rx="8"/>
+            <rect x="190" y="40" width="76" height="40" rx="8"/>
+          </g>
+          <text x="34" y="65" class="dia-t mono">n-2</text>
+          <text x="122" y="65" class="dia-t mono">n-1</text>
+          <text x="212" y="65" class="dia-t mono">n</text>
+          <path class="dia-agave" d="M90 60h12M178 60h12M266 60h34"/>
+
+          <g class="dia-clay">
+            <rect x="300" y="18" width="76" height="40" rx="8"/>
+            <rect x="300" y="72" width="76" height="40" rx="8"/>
+          </g>
+          <text x="316" y="43" class="dia-t mono">n' new</text>
+          <text x="316" y="97" class="dia-t mono">n orphan</text>
+          <path class="dia-clay" d="M266 60c14 0 20-22 34-22M266 60c14 0 20 32 34 32"/>
+
+          <text x="400" y="34" class="dia-t head">Checkpoint mismatch</text>
+          <text x="400" y="52" class="dia-t small">last confirmed hash no longer agrees</text>
+          <text x="400" y="72" class="dia-t head">Readiness fails immediately</text>
+          <text x="400" y="90" class="dia-t small">no new cursor may advance</text>
+
+          <g class="dia-stroke">
+            <rect x="14" y="140" width="672" height="76" rx="10"/>
+          </g>
+          <text x="32" y="164" class="dia-t head">Recovery</text>
+          <text x="32" y="184" class="dia-t small">1. Rewind to the first changed offset in each ordered stream, found by tail fingerprints.</text>
+          <text x="32" y="202" class="dia-t small">2. Emit invalidations for events with no surviving source row, rebuild balances, requeue holder snapshots.</text>
+        </svg>
+        <figcaption>A reorganization is not a special case to patch around. It is the ordinary consequence of building on Bitcoin, and the indexer is expected to rewind rather than paper over it.</figcaption>
+      </figure>
+      <ul>
+        <li>The indexer holds a checkpoint: the last confirmed height and its block hash. Both must still agree with Bitcoin Core before a new read view opens. A mismatch fails readiness immediately and stops cursors from advancing.</li>
+        <li>Fingerprints are kept for the bounded tail of every ordered stream. When upstream rows are replaced, the indexer rewinds at the first changed offset, emits durable invalidations for events that no longer have a source row, rebuilds wallet metrics, and queues fresh holder snapshots.</li>
+        <li>An identical event that reappears after a reorganization keeps its original event id, so a downstream projection can reactivate it instead of double counting it.</li>
+        <li>Holder snapshots are published as a whole generation or not at all. A generation that could not be completed against one consistent view is discarded and restarted rather than mixing balances from different blocks.</li>
+      </ul>
+
+      <h3>Numbers</h3>
+      <ul>
+        <li>Amounts are exact integers end to end. Values are carried as text out of the database and converted with big integers, never through a floating-point number.</li>
+        <li>Circulating supply is computed as <code>total_supply - burnt_amount</code>. That is a Bitcoin Universe normalization decision, not a protocol field.</li>
+        <li>A maximum supply is published only when a fixed cap and a fixed mint amount prove one, or when the asset is already unmintable. Flex mints are given no guessed maximum.</li>
+        <li>The sentinel values <code>COINBASE</code>, <code>OP_RETURN</code>, and <code>UNKNOWN</code> that appear in place of an address are preserved as evidence but represented as no wallet, and excluded from holder snapshots.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="marketplace">
+      <h2 id="marketplace">Core marketplace behaviour</h2>
+      <p>The Mezcal marketplace surface in Bitcoin Universe Core is declared read-only in the protocol registry: discovery is supported, and list, update, unlist, and buy are declared unsupported until authoritative ownership, transferability, builder, signed-transaction validation, broadcast, settlement, and reorg recovery are deployed and proven. The rules below describe how the code behind that surface is constrained, because they are useful to anyone building a comparable flow.</p>
+
+      <h3>Proving a listing</h3>
+      <p>Before a Mezcal listing can be registered, updated, delisted, or bought, Core re-proves it against two independent sources: the Bitcoin prevout, and the Mezcal authority's record for the same outpoint. A listing is valid only when all of the following hold.</p>
+      <div class="table-wrap">
+        <table>
+          <caption>What a Mezcal listing claim must prove, and the reason returned when it does not.</caption>
+          <thead><tr><th scope="col">Check</th><th scope="col">Failure reason</th></tr></thead>
+          <tbody>
+            <tr><td>The claim itself parses: a well-formed outpoint, ticker, amount, owner address, and satoshi value</td><td><code>invalid-claim</code></td></tr>
+            <tr><td>The Bitcoin prevout exists at that exact outpoint, holds exactly the claimed satoshi value, is confirmed, is unspent, and pays the claimed owner</td><td><code>bitcoin-prevout</code></td></tr>
+            <tr><td>The Mezcal record is for the same transaction and output index, the same satoshi value, the same owner, and shows neither a spending block nor a spending transaction</td><td><code>mezcal-prevout</code></td></tr>
+            <tr><td>The outpoint carries a balance of the claimed asset id</td><td><code>ticker</code></td></tr>
+            <tr><td>The claimed amount, converted to base units with the asset's own divisibility, equals the indexed balance exactly and is greater than zero</td><td><code>asset-balance</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>An unreachable or unreadable authority returns an unknown verdict, which fails the operation closed. It never falls back to a public indexer: Mezcal ownership decisions in Core must come from Universe-operated infrastructure, and a configuration that points at a retired public authority is refused at startup.</p>
+
+      <h3>The buy payload is derived, never accepted</h3>
+      <p>The OP_RETURN in a purchase transaction decides where every purchased balance lands, so Core owns it. The server derives the only acceptable instruction from what the listing verification just proved, and compares the client's bytes against it:</p>
+<pre><code>{"p":"https://mezcal.sh","edicts":[[ticker,baseUnits,0]]}</code></pre>
+      <ul>
+        <li><strong>ticker</strong> is the asset id the authority proved for the listing, not the one the client sent.</li>
+        <li><strong>baseUnits</strong> is the exact verified balance total of the listings in the purchase, as a decimal string.</li>
+        <li><strong>0</strong> is the buyer's receipt output, which the builder writes first.</li>
+        <li>The comparison is <strong>byte exact</strong>, including length. A different ticker, a different amount, a different destination index, an extra field, or any additional operation is refused and no transaction is built.</li>
+        <li>One purchase may carry <strong>one asset</strong>. A single edict cannot allocate two, so a request mixing tickers is refused with its own reason rather than misallocating silently.</li>
+      </ul>
+      <div class="note">
+        <p><strong>Why this matters beyond Core.</strong> Any service that co-signs or assembles a transaction containing a client-supplied Mezcal payload is delegating the destination of the assets to that client. Derive the payload from what you have proven, compare it byte for byte, and refuse anything else.</p>
+      </div>
+
+      <h3>Fee inputs</h3>
+      <p>Every candidate fee input is classified against the Mezcal authority before it can be spent. An output with any Mezcal balance is skipped, and an authority that cannot answer stops the build with an explicit message instead of risking the balance.</p>
+    </section>
+
+    <section aria-labelledby="fees">
+      <h2 id="fees">Size and fee notes</h2>
+      <p>A Mezcal payload is an ordinary OP_RETURN output. It carries zero satoshis and costs only its bytes. A payload of <var>n</var> bytes produces a script of <var>n</var> + 2 bytes below 76 bytes of payload, and <var>n</var> + 3 bytes from 76 to 255. The whole output serializes to the script plus 8 bytes of value plus the script-length prefix.</p>
+      <div class="table-wrap">
+        <table>
+          <caption>Cost of the instruction output alone, for the examples used in this documentation.</caption>
+          <thead><tr><th scope="col">Payload</th><th scope="col">JSON bytes</th><th scope="col">Output bytes</th><th scope="col">At 5 sat/vB</th><th scope="col">At 20 sat/vB</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Mint</th><td>33</td><td>44</td><td>220 sats</td><td>880 sats</td></tr>
+            <tr><th scope="row">One-edict transfer</th><td>65</td><td>76</td><td>380 sats</td><td>1520 sats</td></tr>
+            <tr><th scope="row">Transfer with a pointer</th><td>77</td><td>89</td><td>445 sats</td><td>1780 sats</td></tr>
+            <tr><th scope="row">Etching with terms</th><td>186</td><td>198</td><td>990 sats</td><td>3960 sats</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The rest of the transaction is priced normally: inputs, recipient outputs, and change. Practical ways to keep the payload small:</p>
+      <ul>
+        <li>Use <code>"mezcal"</code> for <code>p</code> rather than the URL form when your counterparties accept it. It saves 11 bytes.</li>
+        <li>Use an amount of <code>"0"</code> to move an entire balance instead of writing out a long base-unit figure.</li>
+        <li>Prefer the pointer over a second edict when all you need is a change destination.</li>
+        <li>Batch: one payload can carry many edicts, and one transaction can serve many recipients.</li>
+      </ul>
+      <p>Payload size is also bounded by the relay policy of the nodes you depend on. That policy is a node setting, it has changed across Bitcoin Core releases, and it is not part of the Mezcal protocol. The upstream project describes the protocol as leaning on a relaxed OP_RETURN size policy to afford features such as priced mints, so a large etching payload depends on the nodes you actually broadcast through. Confirm the limit there before designing one.</p>
+    </section>
+
+    <section aria-labelledby="limits">
+      <h2 id="limits">Limitations</h2>
+      <ul>
+        <li><strong>Failures are silent.</strong> A closed mint, an underpaid price, a duplicate name, and an edict for an unknown asset all leave a valid Bitcoin transaction that simply does nothing.</li>
+        <li><strong>Cenotaphs burn.</strong> An invalid payload does not leave balances untouched; it destroys the ones on the inputs.</li>
+        <li><strong>No implicit change.</strong> Every unallocated unit lands on one output, chosen by the pointer or by position.</li>
+        <li><strong>Names are first-come.</strong> A losing etching is ignored, not rejected, so a wallet must check the result after confirmation.</li>
+        <li><strong>The output index equal to the output count is a cenotaph.</strong> The reference allocator carries a Runes-style split branch for that index, but the decoder rejects such a payload first, so the branch cannot be reached at the pinned revision.</li>
+        <li><strong><code>"pointer": 0</code> is treated as absent</strong> at the pinned revision, because the implementation tests the value for truthiness.</li>
+        <li><strong>No mempool coverage.</strong> Pending state is not part of what a Universe Mezcal source publishes.</li>
+        <li><strong>Divisibility is capped at 18</strong> by the payload schema, even though the upstream prose describes a wider range.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="security">
+      <h2 id="security">Security considerations</h2>
+      <ul>
+        <li><strong>The payload is unauthenticated text.</strong> Anyone can write any JSON into an OP_RETURN. An instruction only has power over units the transaction actually spends, so authority comes from the inputs, never from the payload.</li>
+        <li><strong>Never accept a payload from a client you are signing for.</strong> Derive it from what you have proven and compare byte for byte, as the Core buy path does.</li>
+        <li><strong>Screen fee inputs.</strong> Spending an asset-bearing output for its satoshis moves the asset too, and the remainder rule decides where it goes.</li>
+        <li><strong>Beware display units.</strong> A payload written in display units instead of base units is valid and moves a thousandth or a hundred-millionth of what was intended, with the rest going to the pointer.</li>
+        <li><strong>Confirm before you rely.</strong> A transfer that is unconfirmed can be replaced or reorganized away. Wait for confirmations in proportion to the value at stake.</li>
+        <li><strong>Trust one authority, not any authority.</strong> An ownership answer from a public indexer is a convenience, not a proof. Core requires Universe-operated infrastructure for Mezcal ownership decisions and refuses to start when it is pointed at a retired public authority.</li>
+        <li><strong>Report protocol issues upstream.</strong> A defect in the protocol or its reference implementation belongs to <a href="https://github.com/bitapeslabs/mezcal">bitapeslabs/mezcal</a>. A defect in this documentation belongs here; see <a href="https://github.com/bitcoinuniverseio/mezcal/blob/main/SECURITY.md">SECURITY.md</a>.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="checklist">
+      <h2 id="checklist">Implementation checklist</h2>
+      <p>For an indexer that intends to agree with the reference implementation:</p>
+      <ol>
+        <li>Start at block 898750 and create the genesis asset <code>1:0</code> from the coinbase transaction of that block.</li>
+        <li>Take the mezcalstone from the first nulldata output only; concatenate every push-data chunk; decode UTF-8; parse JSON.</li>
+        <li>Validate strictly: unknown keys, wrong types, and out-of-range values all produce a cenotaph.</li>
+        <li>Treat every amount as a string holding a u128 integer. Never parse one into a floating-point number.</li>
+        <li>Process transactions in block order and index order; within a transaction, etch, then mint, then edicts, then the remainder.</li>
+        <li>Rewrite the edict id <code>0:0</code> to the current transaction's own <code>block:tx</code>.</li>
+        <li>Clamp every edict to the remaining pool; treat an amount of <code>"0"</code> as the whole remainder.</li>
+        <li>Send the remainder to the pointer output when it resolves, otherwise to the first non-OP_RETURN output; if there is none, burn it.</li>
+        <li>Burn everything on the inputs when the transaction is a cenotaph, and everything allocated to an OP_RETURN output otherwise.</li>
+        <li>Record events with the block hash, and be able to rewind them when that block hash is replaced.</li>
+        <li>Check your implementation against the <a href="vectors.html">test vectors</a> before trusting it with balances.</li>
+      </ol>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <h2>Pages</h2>
+        <ul>
+          <li><a href="./">Overview</a></li>
+          <li><a href="spec.html">Specification</a></li>
+          <li><a href="guide.html">Guide</a></li>
+          <li><a href="reference.html">Reference</a></li>
+          <li><a href="vectors.html">Test vectors</a></li>
+          <li><a href="validator.html">Validator</a></li>
+          <li><a href="changelog.html">Changelog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Document</h2>
+        <dl>
+          <dt>Owning repository</dt><dd><a href="https://github.com/bitcoinuniverseio/mezcal">bitcoinuniverseio/mezcal</a></dd>
+          <dt>Source path</dt><dd>reference.html</dd>
+          <dt>Documentation version</dt><dd>2026.09.01</dd>
+        </dl>
+      </div>
+      <div>
+        <h2>Subject</h2>
+        <dl>
+          <dt>Lifecycle</dt><dd>beta</dd>
+          <dt>Chain and network</dt><dd>bitcoin / mainnet</dd>
+          <dt>Upstream revision</dt><dd>bitapeslabs/mezcal @ 0f3323f</dd>
+          <dt>Last verified</dt><dd>2026-09-01</dd>
+        </dl>
+      </div>
+      <div>
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://docs.bitcoinuniverse.io">docs.bitcoinuniverse.io</a></li>
+          <li><a href="https://github.com/bitcoinuniverseio/mezcal/edit/main/reference.html">Edit this page on GitHub</a></li>
+          <li><a href="https://github.com/bitcoinuniverseio/mezcal/blob/main/SECURITY.md">Security policy</a></li>
+          <li><a href="https://mezcal.sh">mezcal.sh</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="colophon">Documentation published by Bitcoin Universe. Mezcal is an independent protocol by BitApes Labs; names and artwork remain with their creators, and this documentation implies no affiliation or endorsement. Verify every transaction before signing.</p>
+  </div>
+</footer>
+<script src="site.js" defer></script>
+</body>
+</html>

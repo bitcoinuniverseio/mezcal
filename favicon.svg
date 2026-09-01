@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Mezcal documentation">
+  <title>Mezcal documentation</title>
+  <rect width="64" height="64" rx="12" fill="#f6efe4"/>
+  <g fill="none" stroke="#a8442a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 14h24l-5 8c6 4.5 9 10.5 9 16.5C48 48 41 54 32 54s-16-6-16-15.5c0-6 3-12 9-16.5z"/>
+  </g>
+  <g fill="none" stroke="#46683f" stroke-width="3" stroke-linecap="round">
+    <path d="M23 40h18M26 47h12"/>
+  </g>
+</svg>
