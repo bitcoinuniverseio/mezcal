@@ -1,0 +1,74 @@
+# Mezcal protocol documentation
+
+> Mezcal is a fungible token protocol on Bitcoin mainnet. A transaction carries its
+> instruction as UTF-8 JSON pushed after OP_RETURN, and balances live on ordinary
+> transaction outputs. This site documents the payload grammar, the indexing rules,
+> and the behaviour of Bitcoin Universe products that support the protocol.
+
+Site: https://bitcoinuniverseio.github.io/mezcal/
+Repository: https://github.com/bitcoinuniverseio/mezcal
+Documentation version: 2026.09.01
+Lifecycle: beta
+Chain and network: bitcoin / mainnet
+Rules pinned to: bitapeslabs/mezcal at 0f3323ffc1c657ad529529f04543b5ba93250fd6
+Upstream project: https://github.com/bitapeslabs/mezcal (Mezcal originated there, not at Bitcoin Universe)
+Central documentation portal: https://docs.bitcoinuniverse.io
+
+## Pages
+
+- [Overview](https://bitcoinuniverseio.github.io/mezcal/index.html): what Mezcal is in
+  plain language, chain and network, an at-a-glance fact table, the shape of a payload,
+  who the documentation is for, the Bitcoin Universe support summary, and where to report
+  problems.
+- [Specification](https://bitcoinuniverseio.github.io/mezcal/spec.html): the normative
+  rules, numbered and grouped: the OP_RETURN carrier (C), the payload grammar (P),
+  identifiers (I), amounts and base units (U), etching (E), minting (M), edicts and
+  allocation (A), pointer and remainder (R), burning (B), the eight cenotaph conditions
+  (X), and the order of evaluation (O).
+- [Guide](https://bitcoinuniverseio.github.io/mezcal/guide.html): the mental model, then
+  etching, minting, transferring, and burning walked through transaction by transaction
+  with exact payload bytes, a pre-signing checklist, and the support matrix for Bitcoin
+  Universe products.
+- [Reference](https://bitcoinuniverseio.github.io/mezcal/reference.html): terminology,
+  indexer semantics for confirmation, mempool coverage and reorganizations, the Bitcoin
+  Universe Core marketplace rules including the byte-exact derived buy payload, size and
+  fee arithmetic, limitations, security considerations, and an implementation checklist.
+- [Test vectors](https://bitcoinuniverseio.github.io/mezcal/vectors.html): 24 worked
+  vectors with hex encodings and expected outcomes, split into valid payloads, cenotaph
+  payloads, and payloads that do nothing without burning.
+- [Validator](https://bitcoinuniverseio.github.io/mezcal/validator.html): a client-side
+  payload validator and builder. It makes no network requests and stores nothing.
+- [Changelog](https://bitcoinuniverseio.github.io/mezcal/changelog.html): documentation
+  version history and the divergences found between upstream prose and upstream code.
+
+## Machine-readable files
+
+- https://bitcoinuniverseio.github.io/mezcal/search-index.json: the authored search index
+  (page, title, anchor, snippet, aliases).
+- https://bitcoinuniverseio.github.io/mezcal/docs.manifest.json: the documentation manifest
+  consumed by the Bitcoin Universe documentation portal.
+- https://bitcoinuniverseio.github.io/mezcal/sitemap.xml
+- https://bitcoinuniverseio.github.io/mezcal/robots.txt
+
+## Facts worth quoting exactly
+
+- Payload form: a single JSON object with the required key `p` and the optional keys
+  `edicts`, `etching`, `mint`, and `pointer`. Unknown keys are fatal.
+- Accepted values of `p`: `"mezcal"`, `"https://mezcal.sh"`, `"https://t.me/mezcalbtc"`.
+- An edict is `[id, amount, output]`, or the equivalent object with keys `id`, `amount`,
+  `output`. The id is `block:tx`, the amount is a u128 decimal string in base units, and
+  the output is an index of this transaction.
+- Divisibility is an integer from 0 to 18. Genesis is block 898750, asset id `1:0`.
+- A cenotaph burns every Mezcal balance on the transaction's inputs. The eight conditions
+  are listed on the specification page.
+- Bitcoin Universe Core derives the only acceptable buy instruction from a verified
+  listing as `{"p":"https://mezcal.sh","edicts":[[ticker,baseUnits,0]]}` and refuses any
+  client payload that differs by a byte. A single purchase carries a single asset.
+- The Mezcal marketplace surface in Core is declared read-only: discovery is supported and
+  list, update, unlist, and buy are declared unsupported.
+
+## Notes for machine readers
+
+Every page is hand-authored static HTML with semantic landmarks and is readable as raw
+HTML without executing scripts. JavaScript enhances search, the theme toggle, and the
+validator only.

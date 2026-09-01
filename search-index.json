@@ -1,0 +1,258 @@
+{
+  "version": "2026.09.01",
+  "site": "https://bitcoinuniverseio.github.io/mezcal/",
+  "entries": [
+    {
+      "page": "Overview",
+      "title": "What Mezcal is",
+      "url": "index.html",
+      "text": "Mezcal is a fungible token protocol on Bitcoin mainnet. Instructions travel as UTF-8 JSON in an OP_RETURN output; balances live on transaction outputs.",
+      "aliases": ["mezcal", "mescal", "mezcal.sh", "what is mezcal", "overview", "token", "fungible", "bitapeslabs"]
+    },
+    {
+      "page": "Overview",
+      "title": "At a glance: chain, network, genesis",
+      "url": "index.html#at-a-glance",
+      "text": "Bitcoin mainnet, OP_RETURN carrier, UTF-8 JSON encoding, asset ids of the form block:tx, genesis block 898750, divisibility 0 to 18, u128 amounts.",
+      "aliases": ["genesis", "898750", "network", "mainnet", "chain", "divisibility", "u128", "facts"]
+    },
+    {
+      "page": "Overview",
+      "title": "The shape of a payload",
+      "url": "index.html#shape",
+      "text": "One JSON object with a required protocol tag and optional edicts, etching, mint, and pointer keys. An edict is asset id, base-unit amount, output index.",
+      "aliases": ["payload", "json", "mezcalstone", "shape", "example", "p tag"]
+    },
+    {
+      "page": "Overview",
+      "title": "Bitcoin Universe support",
+      "url": "index.html#support",
+      "text": "Discovery and explorer views are available. The Mezcal marketplace surface is declared read-only in the Core protocol registry. Indexing coverage is partial: no complete mempool feed.",
+      "aliases": ["support", "marketplace", "read-only", "universe", "core", "registry", "wallet"]
+    },
+    {
+      "page": "Specification",
+      "title": "1. Transaction carrier",
+      "url": "spec.html#carrier",
+      "text": "The mezcalstone is taken from the first nulldata output. Push-data chunks after OP_RETURN are concatenated, decoded as UTF-8, and parsed as JSON.",
+      "aliases": ["op_return", "opreturn", "nulldata", "carrier", "script", "push data", "C-1", "C-3", "C-6"]
+    },
+    {
+      "page": "Specification",
+      "title": "2. Payload grammar",
+      "url": "spec.html#grammar",
+      "text": "Strict validation over five keys: p, edicts, etching, mint, pointer. The protocol tag must be mezcal, https://mezcal.sh, or https://t.me/mezcalbtc.",
+      "aliases": ["grammar", "schema", "keys", "strict", "p", "protocol tag", "P-2", "P-3", "P-4"]
+    },
+    {
+      "page": "Specification",
+      "title": "3. Identifiers, block:tx and 0:0",
+      "url": "spec.html#ids",
+      "text": "An asset id is the etching block height and the transaction index inside that block. 0:0 inside an edict self-references the asset etched by the same transaction. Genesis is 1:0.",
+      "aliases": ["id", "identifier", "block:tx", "0:0", "1:0", "protocol id", "ticker", "self reference", "I-4"]
+    },
+    {
+      "page": "Specification",
+      "title": "4. Amounts and base units",
+      "url": "spec.html#units",
+      "text": "Every amount is a decimal string within the u128 range, expressed in base units. Display amount times ten to the power of divisibility.",
+      "aliases": ["amount", "base units", "decimals", "divisibility", "u128", "scale", "U-1", "U-3"]
+    },
+    {
+      "page": "Specification",
+      "title": "5. Etching an asset",
+      "url": "spec.html#etching",
+      "text": "Name of 1 to 15 lowercase characters, a one code point symbol, divisibility 0 to 18, a premine, and mint terms that may be null. Names are unique; a duplicate etching is ignored.",
+      "aliases": ["etch", "etching", "deploy", "name", "symbol", "premine", "terms", "turbo", "flex mint", "E-2", "E-9"]
+    },
+    {
+      "page": "Specification",
+      "title": "6. Minting",
+      "url": "spec.html#mint",
+      "text": "A mint names an asset by id. Cap, height and offset windows, and price terms decide whether it produces anything. A flex mint produces floor of satoshis paid divided by price.",
+      "aliases": ["mint", "cap", "terms", "height", "offset", "price", "pay_to", "flex", "M-5", "M-8"]
+    },
+    {
+      "page": "Specification",
+      "title": "7. Edicts and allocation",
+      "url": "spec.html#edicts",
+      "text": "Edicts run in order and are clamped to the unallocated pool. An amount of zero allocates everything remaining. An edict may target the OP_RETURN output, which burns.",
+      "aliases": ["edict", "edicts", "allocation", "transfer", "clamp", "output index", "A-5", "A-6"]
+    },
+    {
+      "page": "Specification",
+      "title": "8. Pointer and remainder",
+      "url": "spec.html#pointer",
+      "text": "Whatever the edicts did not allocate goes to the pointer output, or to the first non-OP_RETURN output. There is no implicit change output.",
+      "aliases": ["pointer", "remainder", "change", "R-1", "R-3", "sweep"]
+    },
+    {
+      "page": "Specification",
+      "title": "9. Burning",
+      "url": "spec.html#burn",
+      "text": "Units sent to an OP_RETURN output are destroyed. A cenotaph burns every Mezcal balance carried by the transaction inputs.",
+      "aliases": ["burn", "burnt", "destroy", "B-1", "B-2"]
+    },
+    {
+      "page": "Specification",
+      "title": "10. Cenotaph conditions",
+      "url": "spec.html#cenotaph",
+      "text": "Eight conditions make a transaction a cenotaph: bad script, unparseable JSON, non-object payload, unknown key, wrong protocol tag, any type or range error, an out-of-range output index, or a block-zero edict id.",
+      "aliases": ["cenotaph", "cenataph", "invalid", "burn everything", "X-1", "X-7", "failure"]
+    },
+    {
+      "page": "Specification",
+      "title": "11. Order of evaluation",
+      "url": "spec.html#order",
+      "text": "Within a transaction: gather input balances, etch, mint, apply edicts, sweep the remainder, then record burns and write balances.",
+      "aliases": ["order", "sequence", "evaluation", "O-2", "processing"]
+    },
+    {
+      "page": "Guide",
+      "title": "The mental model",
+      "url": "guide.html#model",
+      "text": "One pool per asset, one pass over the edicts, one sweep of the remainder. That is the whole model.",
+      "aliases": ["model", "how it works", "pool", "unallocated"]
+    },
+    {
+      "page": "Guide",
+      "title": "Etching an asset, worked",
+      "url": "guide.html#etch",
+      "text": "A full etching payload with terms, its byte size, and the decisions that cannot be changed afterwards: name, divisibility, premine, and terms.",
+      "aliases": ["etch example", "deploy example", "create token", "worked example"]
+    },
+    {
+      "page": "Guide",
+      "title": "Minting, worked",
+      "url": "guide.html#mint",
+      "text": "A mint payload is 33 bytes of JSON. Price terms must be paid by outputs of the same transaction, or nothing is minted.",
+      "aliases": ["mint example", "priced mint", "pay_to", "payment"]
+    },
+    {
+      "page": "Guide",
+      "title": "Transferring, worked",
+      "url": "guide.html#transfer",
+      "text": "One edict to the recipient and a pointer to your change output. Forgetting the pointer hands your change to the recipient.",
+      "aliases": ["transfer example", "send", "change", "pointer", "mistake"]
+    },
+    {
+      "page": "Guide",
+      "title": "Burning",
+      "url": "guide.html#burn",
+      "text": "There is no burn operation. Burning is a destination: an edict or the remainder aimed at the OP_RETURN output, or a cenotaph by accident.",
+      "aliases": ["burn example", "destroy tokens"]
+    },
+    {
+      "page": "Guide",
+      "title": "Before you sign",
+      "url": "guide.html#checklist",
+      "text": "Decode the OP_RETURN, check the asset id, check the amount scale, check every output index, check where the remainder lands, check your fee inputs.",
+      "aliases": ["checklist", "signing", "safety", "before signing", "verify"]
+    },
+    {
+      "page": "Guide",
+      "title": "Support matrix",
+      "url": "guide.html#support",
+      "text": "What Bitcoin Universe products support for Mezcal, grounded in the Core protocol registry: discovery supported, marketplace mutations read-only, wallet and inscribe actions declared, indexing available with partial coverage.",
+      "aliases": ["support matrix", "wallet support", "marketplace support", "inscribe", "compatibility"]
+    },
+    {
+      "page": "Reference",
+      "title": "Terminology",
+      "url": "reference.html#terms",
+      "text": "Mezcalstone, etching, asset id, edict, pointer, unallocated pool, cenotaph, base units, flex mint, turbo.",
+      "aliases": ["glossary", "terminology", "definitions", "mezcalstone", "turbo"]
+    },
+    {
+      "page": "Reference",
+      "title": "Indexer semantics: confirmation and mempool",
+      "url": "reference.html#indexing",
+      "text": "State exists only for confirmed transactions, verified against Bitcoin Core block membership. There is no complete Mezcal mempool feed, so coverage is partial and pending activity is never inferred.",
+      "aliases": ["indexer", "confirmation", "mempool", "pending", "coverage", "partial", "merkle proof"]
+    },
+    {
+      "page": "Reference",
+      "title": "Reorganization handling",
+      "url": "reference.html#indexing",
+      "text": "A checkpoint of the last confirmed height and hash must still agree with Bitcoin Core. On a mismatch readiness fails, the indexer rewinds at the first changed offset and emits invalidations.",
+      "aliases": ["reorg", "reorganization", "rollback", "invalidation", "checkpoint", "rewind"]
+    },
+    {
+      "page": "Reference",
+      "title": "Core marketplace behaviour",
+      "url": "reference.html#marketplace",
+      "text": "A listing is re-proved against the Bitcoin prevout and the Mezcal authority. The buy OP_RETURN is derived from what was proven and compared byte for byte; mixed tickers are refused.",
+      "aliases": ["marketplace", "buy", "listing", "byte exact", "verifyMezcalListingClaim", "mismatch", "core"]
+    },
+    {
+      "page": "Reference",
+      "title": "Size and fee notes",
+      "url": "reference.html#fees",
+      "text": "A mint payload costs 44 output bytes, a transfer with a pointer 89, an etching with terms 198. Using the short protocol tag saves 11 bytes.",
+      "aliases": ["fees", "size", "bytes", "cost", "sat/vB", "vbytes", "cheap"]
+    },
+    {
+      "page": "Reference",
+      "title": "Limitations",
+      "url": "reference.html#limits",
+      "text": "Failures are silent, cenotaphs burn, there is no implicit change, names are first-come, and an output index equal to the output count is a cenotaph.",
+      "aliases": ["limitations", "gotchas", "sharp edges", "silent failure", "quirks"]
+    },
+    {
+      "page": "Reference",
+      "title": "Security considerations",
+      "url": "reference.html#security",
+      "text": "The payload is unauthenticated text. Never accept a client-supplied payload you are signing for, screen fee inputs, beware display units, and confirm before you rely.",
+      "aliases": ["security", "risk", "threat", "safety", "fee inputs", "unauthenticated"]
+    },
+    {
+      "page": "Reference",
+      "title": "Implementation checklist",
+      "url": "reference.html#checklist",
+      "text": "Eleven steps for an indexer that intends to agree with the reference implementation, from the genesis block to reorganization rewind.",
+      "aliases": ["implementation", "checklist", "build an indexer", "conformance"]
+    },
+    {
+      "page": "Test vectors",
+      "title": "Valid payloads",
+      "url": "vectors.html#valid-h",
+      "text": "Nine valid payloads with hex encodings: minimal transfer, whole balance, transfer with change, mint, etch with premine, no operation, deliberate burn, object-form edict, clamped over-allocation.",
+      "aliases": ["vectors", "valid", "examples", "hex", "test cases"]
+    },
+    {
+      "page": "Test vectors",
+      "title": "Cenotaph payloads",
+      "url": "vectors.html#ceno-h",
+      "text": "Eleven payloads that burn everything: not JSON, an array, an unknown key, a wrong protocol tag, a numeric amount, an out-of-range output index, a block-zero id, a bad divisibility, symbol, or name, and a missing tag.",
+      "aliases": ["invalid vectors", "cenotaph examples", "failing cases", "burn"]
+    },
+    {
+      "page": "Test vectors",
+      "title": "Payloads that do nothing, safely",
+      "url": "vectors.html#ignored-h",
+      "text": "A mint of an unknown asset, an etching of a taken name, an edict for an asset with no balance, and a transaction with no OP_RETURN at all.",
+      "aliases": ["ignored", "no effect", "not a cenotaph", "silent"]
+    },
+    {
+      "page": "Validator",
+      "title": "Payload validator and builder",
+      "url": "validator.html",
+      "text": "Paste hex, a whole OP_RETURN script, or JSON and see every field checked against the rules. Or build a byte-correct payload with size and fee notes. Client-side only.",
+      "aliases": ["validator", "decoder", "builder", "tool", "check payload", "parse", "verify payload"]
+    },
+    {
+      "page": "Validator",
+      "title": "What the validator does not check",
+      "url": "validator.html#scope-h",
+      "text": "It has no chain state: it cannot tell whether an asset exists, whether a name is taken, whether a mint window is open, or whether your inputs hold the balance.",
+      "aliases": ["limits of the tool", "scope", "no network", "privacy"]
+    },
+    {
+      "page": "Changelog",
+      "title": "Documentation changelog",
+      "url": "changelog.html",
+      "text": "Version history of this documentation, what was verified against source at each revision, and the divergences between upstream prose and upstream code.",
+      "aliases": ["changelog", "history", "versions", "what changed"]
+    }
+  ]
+}

@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mezcal guide | etch, mint, transfer, burn, worked examples</title>
+<meta name="description" content="A plain-language walkthrough of Mezcal operations with worked transactions: etching an asset, minting, transferring with a pointer, burning, and what Bitcoin Universe products support.">
+<link rel="canonical" href="https://bitcoinuniverseio.github.io/mezcal/guide.html">
+<meta name="theme-color" content="#a8442a" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17120f" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Bitcoin Universe protocol documentation">
+<meta property="og:title" content="Mezcal guide">
+<meta property="og:description" content="Etch, mint, transfer, and burn walked through transaction by transaction, with exact payload bytes and the Bitcoin Universe support matrix.">
+<meta property="og:url" content="https://bitcoinuniverseio.github.io/mezcal/guide.html">
+<meta property="og:image" content="https://bitcoinuniverseio.github.io/mezcal/og-mezcal.svg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+  <div class="shell masthead-inner">
+    <a class="brand" href="./" aria-label="Mezcal protocol documentation, home">
+      <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+        <path class="dia-clay" d="M12 9h16l-3 5c4 3 6 7 6 11 0 6-5 10-11 10S9 31 9 25c0-4 2-8 6-11z"/>
+        <path class="dia-agave" d="M14 25h12M15.5 30h9"/>
+      </svg>
+      <span>Mezcal<small>Protocol documentation</small></span>
+    </a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="./">Overview</a>
+      <a href="spec.html">Specification</a>
+      <a href="guide.html" aria-current="page">Guide</a>
+      <a href="reference.html">Reference</a>
+      <a href="vectors.html">Test vectors</a>
+      <a href="validator.html">Validator</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <div class="tools">
+      <div class="search-wrap">
+        <label class="sr-only" for="site-search">Search this documentation</label>
+        <input id="site-search" type="search" placeholder="Search (press /)" autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden role="region" aria-label="Search results"></div>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" type="button" hidden>Kiln</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="shell">
+
+    <section aria-labelledby="title">
+      <p class="eyebrow">Walkthrough</p>
+      <h1 id="title">Working with Mezcal</h1>
+      <p class="lede">Four operations exist: etch an asset, mint from it, transfer balances, and burn. All four are the same Bitcoin transaction shape with a different JSON object in the OP_RETURN. This page walks each one, byte for byte.</p>
+      <nav class="toc" aria-labelledby="toc-h">
+        <h2 id="toc-h">On this page</h2>
+        <ul>
+          <li><a href="#model">The mental model</a></li>
+          <li><a href="#etch">Etching an asset</a></li>
+          <li><a href="#mint">Minting</a></li>
+          <li><a href="#transfer">Transferring</a></li>
+          <li><a href="#burn">Burning</a></li>
+          <li><a href="#checklist">Before you sign</a></li>
+          <li><a href="#support">Support matrix</a></li>
+        </ul>
+      </nav>
+    </section>
+
+    <section aria-labelledby="model">
+      <h2 id="model">The mental model</h2>
+      <p>Mezcal balances live on transaction outputs, the same way satoshis do. Spending an output spends the balance sitting on it. What the transaction does next is decided entirely by the JSON in its OP_RETURN.</p>
+      <div class="cards">
+        <article class="card">
+          <p class="eyebrow">One pool</p>
+          <h3>Everything meets in the middle</h3>
+          <p>Balances from the inputs, a premine from an etching, and units from a mint all land in the same unallocated pool before anything is distributed.</p>
+        </article>
+        <article class="card">
+          <p class="eyebrow">One pass</p>
+          <h3>Edicts run in order</h3>
+          <p>Each edict moves an amount to one output. An amount of <code>"0"</code> means everything left. An amount larger than the pool is quietly reduced.</p>
+        </article>
+        <article class="card">
+          <p class="eyebrow">One sweep</p>
+          <h3>The remainder always lands</h3>
+          <p>Whatever the edicts did not move goes to the pointer output, or to the first non-OP_RETURN output. There is no implicit change.</p>
+        </article>
+      </div>
+      <p>That is the whole model. The rest is field names and limits, which the <a href="spec.html">specification</a> states rule by rule.</p>
+    </section>
+
+    <section aria-labelledby="etch">
+      <h2 id="etch">Etching an asset</h2>
+      <p>An etching creates the asset and fixes its name, symbol, base-unit scale, premine, and mint terms. The asset's id is decided by where the transaction lands: block height and transaction index.</p>
+<pre><code>{"p":"mezcal","etching":{"mezcal":"agave-pot","symbol":"&#9673;","divisibility":6,
+"premine":"1000000000","terms":{"amount":"5000000","cap":"2100",
+"height":[null,null],"offset":[null,1000]}}}</code></pre>
+      <p>That object reads: an asset named <code>agave-pot</code>, six decimals, a premine of 1000 display units (1000000000 base units), mints of 5 display units each, at most 2100 mints, open from the etching block until 1000 blocks after it.</p>
+      <div class="table-wrap">
+        <table>
+          <caption>Size of the etching example above, as a single OP_RETURN output.</caption>
+          <thead><tr><th scope="col">Measure</th><th scope="col">Value</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">JSON payload</th><td>186 bytes</td></tr>
+            <tr><th scope="row">Output script</th><td>189 bytes (OP_RETURN, a two-byte push prefix, payload)</td></tr>
+            <tr><th scope="row">Whole output</th><td>198 serialized bytes: 8 for the zero value, 1 for the script length, 189 for the script</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Things worth deciding before you sign an etching, because none of them can be changed afterwards:</p>
+      <ul>
+        <li><strong>Name.</strong> Lowercase letters, digits, and hyphens, at most 15 characters, and unique across the protocol. If someone else's transaction with the same name confirms first, yours silently does nothing.</li>
+        <li><strong>Divisibility.</strong> 0 to 18. It fixes the base-unit scale forever.</li>
+        <li><strong>Premine.</strong> It enters the pool of this same transaction, so decide which output receives it, with an edict using the self-reference id <code>0:0</code> or with a pointer.</li>
+        <li><strong>Terms.</strong> <code>"terms": null</code> means the supply is the premine and nothing more will ever be minted.</li>
+      </ul>
+      <div class="note">
+        <p><strong>Flex mints.</strong> Set <code>terms.amount</code> to <code>"0"</code> and give exactly one price term, and each mint produces as many units as the payment buys: <code>floor(satoshis paid / price)</code>. A flex etching that also carries a <code>cap</code>, or more than one price term, is ignored entirely.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="mint">
+      <h2 id="mint">Minting</h2>
+      <p>A mint names the asset by id. That is the whole payload:</p>
+<pre><code>{"p":"mezcal","mint":"899284:20"}</code></pre>
+      <p>33 bytes of JSON, 35 bytes of script. The minted units go into the pool and then follow the same edict and pointer rules as anything else, so a mint with no edicts and no pointer lands on output 0.</p>
+      <p>A mint produces nothing, without any error, when any of these is true:</p>
+      <ul>
+        <li>the id names no asset;</li>
+        <li>the asset is unmintable, or the mint window has not opened or has closed;</li>
+        <li>the cap is already reached;</li>
+        <li>the asset has price terms and this transaction does not pay every one of them in full;</li>
+        <li>the computed amount is zero, which is the usual outcome of underpaying a flex mint.</li>
+      </ul>
+      <p>To mint an asset with price terms, add the payment outputs to the same transaction. Each price term names an address and a satoshi amount, and the sum of your outputs paying that address must reach it.</p>
+      <figure>
+        <svg viewBox="0 0 700 220" role="img" aria-labelledby="mintTitle mintDesc">
+          <title id="mintTitle">A priced mint transaction</title>
+          <desc id="mintDesc">The transaction spends a funding input, pays the price address the required satoshis, writes the mint instruction into an OP_RETURN output, and receives the minted units on the first non OP_RETURN output.</desc>
+          <rect x="14" y="52" width="150" height="46" rx="9" class="dia-fill"/>
+          <text x="28" y="74" class="dia-t head">Input</text>
+          <text x="28" y="90" class="dia-t small">funding, in satoshis</text>
+          <path class="dia-agave" d="M164 75h60"/>
+          <rect x="224" y="26" width="180" height="46" rx="9" class="dia-fill"/>
+          <text x="238" y="48" class="dia-t head">vout 0</text>
+          <text x="238" y="64" class="dia-t small">your address, receives units</text>
+          <rect x="224" y="84" width="180" height="46" rx="9" class="dia-fill"/>
+          <text x="238" y="106" class="dia-t head">vout 1</text>
+          <text x="238" y="122" class="dia-t small">pay_to address, price in sats</text>
+          <rect x="224" y="142" width="180" height="52" rx="9" class="dia-fill"/>
+          <text x="238" y="164" class="dia-t head">vout 2, OP_RETURN</text>
+          <text x="238" y="182" class="dia-t mono">{"p":"mezcal","mint":...}</text>
+          <path class="dia-clay" d="M404 168h44v-118h-44"/>
+          <text x="418" y="44" class="dia-t small">terms checked</text>
+          <text x="418" y="60" class="dia-t small">amount computed</text>
+          <path class="dia-clay" d="M448 60v10h-44"/>
+          <text x="14" y="210" class="dia-t small">The price must be paid in the same transaction that carries the mint instruction.</text>
+        </svg>
+        <figcaption>A priced mint is an ordinary payment with an instruction attached. If the payment falls short, the payment still happens and the mint does not.</figcaption>
+      </figure>
+    </section>
+
+    <section aria-labelledby="transfer">
+      <h2 id="transfer">Transferring</h2>
+      <p>A transfer spends the outputs holding your balance and names where the units should land.</p>
+<pre><code>{"p":"https://mezcal.sh","edicts":[["899284:20","2500000000",0]],"pointer":1}</code></pre>
+      <p>77 bytes of JSON. Read it as: send 25 display units of asset <code>899284:20</code> (which has 8 decimals) to output 0, and send everything left over to output 1.</p>
+      <div class="table-wrap">
+        <table>
+          <caption>The transaction that payload belongs to.</caption>
+          <thead><tr><th scope="col">Position</th><th scope="col">Contents</th><th scope="col">Result</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">vin 0</th><td>Your output holding 100 units of <code>899284:20</code></td><td>Pool starts at 10000000000 base units</td></tr>
+            <tr><th scope="row">vin 1</th><td>A plain satoshi output for the fee</td><td>Carries no Mezcal balance</td></tr>
+            <tr><th scope="row">vout 0</th><td>The recipient's address</td><td>Receives 2500000000 base units</td></tr>
+            <tr><th scope="row">vout 1</th><td>Your own change address</td><td>Receives the remaining 7500000000 by the pointer</td></tr>
+            <tr><th scope="row">vout 2</th><td>OP_RETURN with the payload</td><td>Carries the instruction, holds no balance</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Drop the pointer from that payload and the remainder still goes to output 0, the first non-OP_RETURN output, which is the recipient. That single omission hands your change to the person you were paying. It is the most expensive mistake in the protocol and it produces a perfectly valid transaction.</p>
+      <div class="warn">
+        <p><strong>Fee inputs are dangerous.</strong> Any output you spend for the fee also spends whatever Mezcal balance sits on it. Select fee inputs that are known to be free of Mezcal balances, or add an edict that returns them. Core screens every candidate fee input against the Mezcal authority for exactly this reason, and refuses to build the transaction when the check cannot be answered.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="burn">
+      <h2 id="burn">Burning</h2>
+      <p>There is no burn operation. Burning is a destination: an edict, or the remainder, sent to the OP_RETURN output.</p>
+<pre><code>{"p":"https://mezcal.sh","edicts":[["899284:20","1000000000",2]]}</code></pre>
+      <p>If output 2 is the OP_RETURN output, that edict destroys 10 display units and the rest of the pool follows the remainder rule to output 0.</p>
+      <p>The other way to burn is by accident: a cenotaph. Any unreadable or invalid payload burns every Mezcal balance the transaction was spending. The <a href="spec.html#cenotaph">cenotaph table</a> lists all eight conditions, and the <a href="validator.html">validator</a> checks a payload against them.</p>
+    </section>
+
+    <section aria-labelledby="checklist">
+      <h2 id="checklist">Before you sign</h2>
+      <ol>
+        <li><strong>Decode the OP_RETURN yourself.</strong> It is UTF-8 JSON. Read it in your wallet's raw transaction view, or paste it into the <a href="validator.html">validator</a>.</li>
+        <li><strong>Check the asset id</strong>, not the name shown in an interface. <code>block:tx</code> is what the indexer keys on.</li>
+        <li><strong>Check the amount scale.</strong> Base units, not display units. Multiply by <code>10^divisibility</code>.</li>
+        <li><strong>Check the output index</strong> of every edict against the output list you are actually signing, and confirm the index is not the OP_RETURN output unless you intend a burn.</li>
+        <li><strong>Check where the remainder goes.</strong> Pointer present? Which output is the first non-OP_RETURN one?</li>
+        <li><strong>Check the fee inputs</strong> for balances you did not mean to spend.</li>
+        <li><strong>Check the fee itself.</strong> A Mezcal payload is a normal Bitcoin output and pays normal fees; see the <a href="reference.html#fees">size and fee notes</a>.</li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="support">
+      <h2 id="support">Support matrix</h2>
+      <p>Only support that is visible in the org's own code is listed. Everything else is left out on purpose, including third-party wallets and marketplaces, which this repository cannot verify.</p>
+      <div class="table-wrap">
+        <table>
+          <caption>Mezcal support across Bitcoin Universe products, as declared in the Core protocol registry at <code>backend/packages/ecosystem-contracts/lib/protocols.js</code>.</caption>
+          <thead><tr><th scope="col">Surface</th><th scope="col">Operation</th><th scope="col">State</th><th scope="col">Grounding</th></tr></thead>
+          <tbody>
+            <tr><th scope="row" rowspan="2">Core marketplace</th><td>View markets, collections, activity, transactions</td><td class="yes">Supported</td><td>Discovery actions are the supported set of the Mezcal marketplace policy.</td></tr>
+            <tr><td>List, update listing, unlist, buy, settle</td><td class="no">Read-only</td><td>The policy sets availability to read-only. Mutations are declared unsupported until authoritative ownership, transferability, builder, signed-transaction validation, broadcast, settlement, and reorg recovery are deployed and proven.</td></tr>
+            <tr><th scope="row">Core wallet</th><td>View, send, receive</td><td class="yes">Declared</td><td>The wallet action set for Mezcal in the capability registry.</td></tr>
+            <tr><th scope="row">Inscribe surface</th><td>Etch, mint, transfer</td><td class="yes">Declared</td><td>The inscribe action set for Mezcal in the capability registry.</td></tr>
+            <tr><th scope="row">Token explorer indexing</th><td>Assets, deployments, mints, transfers, burns, holders</td><td class="yes">Supported</td><td>A Universe-operated Mezcal indexer publishes confirmed state, verified against Bitcoin Core block membership before publication. Coverage is reported as partial: there is no complete mempool feed.</td></tr>
+            <tr><th scope="row">Payment UTXO safety</th><td>Refuse to spend asset-bearing outputs for fees</td><td class="yes">Enforced</td><td>Every candidate fee input is classified against the Mezcal authority; an unavailable answer fails closed rather than spending the output.</td></tr>
+            <tr><th scope="row">Third-party wallets</th><td>Any</td><td class="no">Not claimed</td><td>Not verifiable from this organization's code, so nothing is claimed here.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Bitcoin Universe also constrains the one Mezcal payload it builds for a purchase down to a single byte-exact form. That rule, and the ownership proof behind it, is documented in <a href="reference.html#marketplace">the reference</a>.</p>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <h2>Pages</h2>
+        <ul>
+          <li><a href="./">Overview</a></li>
+          <li><a href="spec.html">Specification</a></li>
+          <li><a href="guide.html">Guide</a></li>
+          <li><a href="reference.html">Reference</a></li>
+          <li><a href="vectors.html">Test vectors</a></li>
+          <li><a href="validator.html">Validator</a></li>
+          <li><a href="changelog.html">Changelog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Document</h2>
+        <dl>
+          <dt>Owning repository</dt><dd><a href="https://github.com/bitcoinuniverseio/mezcal">bitcoinuniverseio/mezcal</a></dd>
+          <dt>Source path</dt><dd>guide.html</dd>
+          <dt>Documentation version</dt><dd>2026.09.01</dd>
+        </dl>
+      </div>
+      <div>
+        <h2>Subject</h2>
+        <dl>
+          <dt>Lifecycle</dt><dd>beta</dd>
+          <dt>Chain and network</dt><dd>bitcoin / mainnet</dd>
+          <dt>Upstream revision</dt><dd>bitapeslabs/mezcal @ 0f3323f</dd>
+          <dt>Last verified</dt><dd>2026-09-01</dd>
+        </dl>
+      </div>
+      <div>
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://docs.bitcoinuniverse.io">docs.bitcoinuniverse.io</a></li>
+          <li><a href="https://github.com/bitcoinuniverseio/mezcal/edit/main/guide.html">Edit this page on GitHub</a></li>
+          <li><a href="https://github.com/bitcoinuniverseio/mezcal/blob/main/SECURITY.md">Security policy</a></li>
+          <li><a href="https://mezcal.sh">mezcal.sh</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="colophon">Documentation published by Bitcoin Universe. Mezcal is an independent protocol by BitApes Labs; names and artwork remain with their creators, and this documentation implies no affiliation or endorsement. Verify every transaction before signing.</p>
+  </div>
+</footer>
+<script src="site.js" defer></script>
+</body>
+</html>

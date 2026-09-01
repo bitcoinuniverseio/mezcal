@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mezcal specification | payload grammar, edicts, validity</title>
+<meta name="description" content="Normative Mezcal rules: OP_RETURN carrier, JSON payload grammar, asset ids, etching, mint terms, edict allocation, pointer, burning, and every cenotaph condition.">
+<link rel="canonical" href="https://bitcoinuniverseio.github.io/mezcal/spec.html">
+<meta name="theme-color" content="#a8442a" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17120f" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Bitcoin Universe protocol documentation">
+<meta property="og:title" content="Mezcal specification">
+<meta property="og:description" content="Numbered normative rules for the Mezcal payload: carrier, grammar, identifiers, etching, minting, edict allocation, pointer, burning, and cenotaph conditions.">
+<meta property="og:url" content="https://bitcoinuniverseio.github.io/mezcal/spec.html">
+<meta property="og:image" content="https://bitcoinuniverseio.github.io/mezcal/og-mezcal.svg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+  <div class="shell masthead-inner">
+    <a class="brand" href="./" aria-label="Mezcal protocol documentation, home">
+      <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+        <path class="dia-clay" d="M12 9h16l-3 5c4 3 6 7 6 11 0 6-5 10-11 10S9 31 9 25c0-4 2-8 6-11z"/>
+        <path class="dia-agave" d="M14 25h12M15.5 30h9"/>
+      </svg>
+      <span>Mezcal<small>Protocol documentation</small></span>
+    </a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="./">Overview</a>
+      <a href="spec.html" aria-current="page">Specification</a>
+      <a href="guide.html">Guide</a>
+      <a href="reference.html">Reference</a>
+      <a href="vectors.html">Test vectors</a>
+      <a href="validator.html">Validator</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <div class="tools">
+      <div class="search-wrap">
+        <label class="sr-only" for="site-search">Search this documentation</label>
+        <input id="site-search" type="search" placeholder="Search (press /)" autocomplete="off" spellcheck="false">
+        <div id="search-results" class="search-results" hidden role="region" aria-label="Search results"></div>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" type="button" hidden>Kiln</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="shell">
+
+    <section aria-labelledby="title">
+      <p class="eyebrow">Normative specification</p>
+      <h1 id="title">Mezcal specification</h1>
+      <p class="lede">Every rule below is drawn from the reference implementation at <a href="https://github.com/bitapeslabs/mezcal">bitapeslabs/mezcal</a>, revision <code>0f3323ff</code>, which is the revision the Bitcoin Universe Mezcal indexer pins as its state schema. Where the deployed behaviour differs from the prose of the upstream README, the code decides and the difference is called out.</p>
+
+      <nav class="toc" aria-labelledby="toc-h">
+        <h2 id="toc-h">On this page</h2>
+        <ul>
+          <li><a href="#carrier">1. Transaction carrier</a></li>
+          <li><a href="#grammar">2. Payload grammar</a></li>
+          <li><a href="#ids">3. Identifiers</a></li>
+          <li><a href="#units">4. Amounts and base units</a></li>
+          <li><a href="#etching">5. Etching</a></li>
+          <li><a href="#mint">6. Minting</a></li>
+          <li><a href="#edicts">7. Edicts and allocation</a></li>
+          <li><a href="#pointer">8. Pointer and remainder</a></li>
+          <li><a href="#burn">9. Burning</a></li>
+          <li><a href="#cenotaph">10. Cenotaph conditions</a></li>
+          <li><a href="#order">11. Order of evaluation</a></li>
+        </ul>
+      </nav>
+
+      <div class="note">
+        <p><strong>Reading the rule ids.</strong> C is carrier, P is payload grammar, I is identifiers, U is units, E is etching, M is minting, A is allocation, R is remainder, B is burning, X is cenotaph, O is ordering. Ids are stable; the <a href="vectors.html">test vectors</a> and the <a href="validator.html">validator</a> refer to them.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="carrier">
+      <h2 id="carrier">1. Transaction carrier</h2>
+      <p>A Mezcal instruction, called a mezcalstone, travels in one OP_RETURN output of an ordinary Bitcoin transaction. There is no commitment transaction, no witness envelope, and no inscription.</p>
+
+      <figure>
+        <svg viewBox="0 0 720 250" role="img" aria-labelledby="carrierTitle carrierDesc">
+          <title id="carrierTitle">Anatomy of the OP_RETURN output that carries a mezcalstone</title>
+          <desc id="carrierDesc">The output script begins with the OP_RETURN opcode 0x6a, followed by one or more push-data chunks. The chunks are concatenated into a single buffer, decoded as UTF-8, and parsed as a JSON object whose keys are p, edicts, etching, mint, and pointer.</desc>
+          <text x="16" y="26" class="dia-t head">scriptPubKey of the first nulldata output</text>
+          <rect x="16" y="38" width="70" height="40" rx="8" class="dia-fill"/>
+          <text x="30" y="63" class="dia-t mono">0x6a</text>
+          <text x="16" y="94" class="dia-t small">OP_RETURN</text>
+
+          <rect x="98" y="38" width="86" height="40" rx="8" class="dia-fill"/>
+          <text x="110" y="63" class="dia-t mono">push len</text>
+          <text x="98" y="94" class="dia-t small">1 to 5 bytes</text>
+
+          <rect x="196" y="38" width="330" height="40" rx="8" class="dia-fill"/>
+          <text x="210" y="63" class="dia-t mono">7b 22 70 22 3a 22 68 74 74 70 73 3a ...</text>
+          <text x="196" y="94" class="dia-t small">payload chunk, UTF-8 bytes of the JSON text</text>
+
+          <rect x="538" y="38" width="166" height="40" rx="8" class="dia-fill"/>
+          <text x="552" y="63" class="dia-t mono">further chunks</text>
+          <text x="538" y="94" class="dia-t small">concatenated in order</text>
+
+          <path class="dia-agave" d="M360 104v22H120v20M360 126h250v20"/>
+          <path class="dia-agave" d="M360 104v42"/>
+
+          <rect x="16" y="150" width="688" height="82" rx="10" class="dia-fill"/>
+          <text x="32" y="174" class="dia-t head">Parsed object, validated strictly</text>
+          <text x="32" y="196" class="dia-t mono">{ "p": required, "edicts"?, "etching"?, "mint"?, "pointer"? }</text>
+          <text x="32" y="218" class="dia-t small">Any other key, any type error, or malformed JSON makes the whole transaction a cenotaph.</text>
+        </svg>
+        <figcaption>The carrier is deliberately dull: an OP_RETURN, push data, UTF-8 JSON. Anyone with a block explorer can read a Mezcal instruction without a decoder.</figcaption>
+      </figure>
+
+      <ol class="rules">
+        <li><span class="rule-id">C-1</span><div class="rule-body">
+          <p>Outputs are examined in index order. The mezcalstone is taken from the <strong>first</strong> output whose <code>scriptPubKey.type</code> is <code>nulldata</code>, or whose disassembly begins with <code>OP_RETURN</code>. Later OP_RETURN outputs are ignored.</p>
+        </div></li>
+        <li><span class="rule-id">C-2</span><div class="rule-body">
+          <p>If the transaction has no such output, it carries no mezcalstone. It is not a cenotaph, and Mezcal balances on its inputs move by rule <a href="#pointer">R-1</a>.</p>
+        </div></li>
+        <li><span class="rule-id">C-3</span><div class="rule-body">
+          <p>The selected script is decompiled. The transaction is a cenotaph if the script cannot be decompiled, does not begin with <code>OP_RETURN</code>, or carries no push-data after <code>OP_RETURN</code>.</p>
+        </div></li>
+        <li><span class="rule-id">C-4</span><div class="rule-body">
+          <p>Every push-data chunk after <code>OP_RETURN</code> is concatenated, in script order, into a single payload buffer. Non push-data opcodes among them are skipped.</p>
+        </div></li>
+        <li><span class="rule-id">C-5</span><div class="rule-body">
+          <p>A payload buffer shorter than one byte is ignored. The transaction carries no mezcalstone and is not a cenotaph.</p>
+        </div></li>
+        <li><span class="rule-id">C-6</span><div class="rule-body">
+          <p>The payload buffer is decoded as UTF-8 and parsed as JSON. A parse failure makes the transaction a cenotaph.</p>
+        </div></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="grammar">
+      <h2 id="grammar">2. Payload grammar</h2>
+      <ol class="rules">
+        <li><span class="rule-id">P-1</span><div class="rule-body">
+          <p>The parsed value must be a JSON object. An array, string, number, boolean, or null is a cenotaph.</p>
+        </div></li>
+        <li><span class="rule-id">P-2</span><div class="rule-body">
+          <p>Validation is strict. The object may contain only the keys <code>p</code>, <code>edicts</code>, <code>etching</code>, <code>mint</code>, and <code>pointer</code>. Any other key, at the top level, is a cenotaph.</p>
+        </div></li>
+        <li><span class="rule-id">P-3</span><div class="rule-body">
+          <p><code>p</code> is required and must be exactly one of three literal strings:</p>
+          <pre><code>"mezcal"
+"https://mezcal.sh"
+"https://t.me/mezcalbtc"</code></pre>
+          <p>Any other value, including a trailing slash or a different case, is a cenotaph.</p>
+        </div></li>
+        <li><span class="rule-id">P-4</span><div class="rule-body">
+          <p><code>edicts</code>, when present, is an array. Each element is either the tuple <code>[id, amount, output]</code> or the object <code>{"id":…,"amount":…,"output":…}</code>. The two forms are equivalent; the tuple is what wallets and marketplaces in practice emit.</p>
+        </div></li>
+        <li><span class="rule-id">P-5</span><div class="rule-body">
+          <p><code>etching</code>, when present, is an object (section <a href="#etching">5</a>). <code>mint</code>, when present, is a string (section <a href="#mint">6</a>). <code>pointer</code>, when present, is a JSON number that is an integer in <code>0 … 4294967295</code>.</p>
+        </div></li>
+        <li><span class="rule-id">P-6</span><div class="rule-body">
+          <p>An empty object with only <code>p</code> is valid. It carries no operation, and balances on the inputs move by rule <a href="#pointer">R-1</a>.</p>
+        </div></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="ids">
+      <h2 id="ids">3. Identifiers</h2>
+      <ol class="rules">
+        <li><span class="rule-id">I-1</span><div class="rule-body">
+          <p>An asset is identified by <code>block:tx</code>: the height of the block that contains the etching, and the position of the etching transaction inside that block, counting from zero. Both parts are decimal, with no padding and no sign. The string form must match <code>^\d+:\d+$</code>.</p>
+        </div></li>
+        <li><span class="rule-id">I-2</span><div class="rule-body">
+          <p>In a <code>mint</code> field, both parts must additionally be integers in <code>0 … 4294967295</code>.</p>
+        </div></li>
+        <li><span class="rule-id">I-3</span><div class="rule-body">
+          <p>The first asset, etched from the coinbase transaction of the genesis block <code>898750</code>, has the reserved id <code>1:0</code>.</p>
+        </div></li>
+        <li><span class="rule-id">I-4</span><div class="rule-body">
+          <p>Inside an edict, the id <code>0:0</code> is a self-reference: it is replaced with the id of the asset etched by the same transaction, so a single transaction can etch an asset and allocate its premine.</p>
+        </div></li>
+        <li><span class="rule-id">I-5</span><div class="rule-body">
+          <p>An edict whose id has block <code>0</code> and a non-zero tx part is a cenotaph. <code>0:0</code> is the only permitted block-zero id.</p>
+        </div></li>
+        <li><span class="rule-id">I-6</span><div class="rule-body">
+          <p>An asset name is separate from its id. Names are unique across the protocol; ids are unique by construction. Marketplaces and indexers in Bitcoin Universe key on the id, not the name.</p>
+        </div></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="units">
+      <h2 id="units">4. Amounts and base units</h2>
+      <ol class="rules">
+        <li><span class="rule-id">U-1</span><div class="rule-body">
+          <p>Every protocol amount (<code>amount</code>, <code>cap</code>, <code>premine</code>, and the amount inside an edict) is a JSON <strong>string</strong> holding a decimal integer. A JSON number is a type error and therefore a cenotaph.</p>
+        </div></li>
+        <li><span class="rule-id">U-2</span><div class="rule-body">
+          <p>The string must parse as an integer in <code>0 … 2^128 - 1</code>. An empty string, a sign, a decimal point, exponent notation, or whitespace fails.</p>
+        </div></li>
+        <li><span class="rule-id">U-3</span><div class="rule-body">
+          <p>Amounts are in <strong>base units</strong>. A display amount is <code>baseUnits / 10^divisibility</code>. With <code>divisibility: 8</code>, the display amount 77 is written <code>"7700000000"</code>.</p>
+        </div></li>
+        <li><span class="rule-id">U-4</span><div class="rule-body">
+          <p>Price amounts inside mint terms are satoshis, and are a JSON number (a numeric string that fits is accepted and converted). The value must be an integer in <code>0 … 2100000000000000</code>.</p>
+        </div></li>
+      </ol>
+      <div class="warn">
+        <p><strong>The most common payload defect is a display amount.</strong> Writing <code>"77"</code> where <code>"7700000000"</code> is meant does not fail validation: it is a perfectly valid edict that moves 0.00000077 of the asset and leaves the rest to the pointer. The <a href="validator.html">validator</a> converts both ways so the mistake is visible before broadcast.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="etching">
+      <h2 id="etching">5. Etching</h2>
+      <p>An etching creates an asset. It is the <code>etching</code> object inside the mezcalstone, and its id is fixed by the position of the transaction that carries it.</p>
+<pre><code>"etching": {
+  "mezcal": "taco",
+  "symbol": "&#x1F32E;",
+  "divisibility": 8,
+  "premine": "0",
+  "terms": {
+    "amount": "10000000000",
+    "cap": "21000",
+    "height": [898750, null],
+    "offset": [null, null]
+  },
+  "turbo": true
+}</code></pre>
+      <ol class="rules">
+        <li><span class="rule-id">E-1</span><div class="rule-body">
+          <p>Required keys: <code>mezcal</code>, <code>symbol</code>, <code>divisibility</code>, <code>premine</code>, and <code>terms</code>. <code>terms</code> may be <code>null</code>, but the key itself must be present. <code>turbo</code> is optional and defaults to <code>true</code>.</p>
+        </div></li>
+        <li><span class="rule-id">E-2</span><div class="rule-body">
+          <p><code>mezcal</code> is the name: 1 to 15 characters matching <code>^[a-z0-9-]+$</code>. Lowercase letters, digits, and the hyphen only.</p>
+        </div></li>
+        <li><span class="rule-id">E-3</span><div class="rule-body">
+          <p><code>symbol</code> is exactly one visible character or emoji, counted in code points. Zero or two code points is a type error and therefore a cenotaph. An indexer that cannot store the given character substitutes the currency sign <code>&#164;</code>.</p>
+        </div></li>
+        <li><span class="rule-id">E-4</span><div class="rule-body">
+          <p><code>divisibility</code> is an integer in <code>0 … 18</code>. It fixes the base-unit scale for the asset forever.</p>
+        </div></li>
+        <li><span class="rule-id">E-5</span><div class="rule-body">
+          <p><code>premine</code> is a base-unit amount created immediately. It enters the transaction's unallocated pool, so it is distributed by the edicts and pointer of the same transaction.</p>
+        </div></li>
+        <li><span class="rule-id">E-6</span><div class="rule-body">
+          <p>An etching is <strong>ignored</strong>, without making the transaction a cenotaph, when an asset already exists at the same <code>block:tx</code> id, or when the name is already taken. The first etching of a name wins; a later one has no effect.</p>
+        </div></li>
+        <li><span class="rule-id">E-7</span><div class="rule-body">
+          <p><code>terms</code>, when not null, requires <code>amount</code> (base units per mint), <code>height</code>, and <code>offset</code>. <code>cap</code> is optional and may be null. <code>price</code> is optional.</p>
+          <p><code>height</code> and <code>offset</code> are two-element arrays; each element is either <code>null</code> or an integer in <code>0 … 4294967295</code>. <code>height</code> is an absolute block range; <code>offset</code> is a range relative to the etching block.</p>
+        </div></li>
+        <li><span class="rule-id">E-8</span><div class="rule-body">
+          <p><code>price</code>, when present, is one object or an array of objects, each <code>{"amount": satoshis, "pay_to": address}</code>. <code>pay_to</code> must decode as a Bitcoin mainnet address. Every price term must be satisfied for a mint to count.</p>
+        </div></li>
+        <li><span class="rule-id">E-9</span><div class="rule-body">
+          <p><strong>Flex mint.</strong> Setting <code>terms.amount</code> to <code>"0"</code> with exactly one price term that has a <code>pay_to</code> puts the asset in flex mode: each mint produces as many units as the payment buys. See <a href="#mint">M-8</a>.</p>
+        </div></li>
+        <li><span class="rule-id">E-10</span><div class="rule-body">
+          <p>An etching is ignored when it is malformed in one of these ways:</p>
+          <ul>
+            <li><code>terms.amount</code> is <code>"0"</code> without a price term (flex mode was intended but not configured);</li>
+            <li>flex mode combined with a <code>cap</code>;</li>
+            <li>flex mode with zero or more than one price term.</li>
+          </ul>
+        </div></li>
+        <li><span class="rule-id">E-11</span><div class="rule-body">
+          <p>An etching with <code>"terms": null</code> creates a valid asset that can never be minted. Its whole supply is its premine.</p>
+        </div></li>
+        <li><span class="rule-id">E-12</span><div class="rule-body">
+          <p>An etching cannot be edited. Name, symbol, divisibility, and mint terms are fixed at the etching transaction.</p>
+        </div></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="mint">
+      <h2 id="mint">6. Minting</h2>
+      <p>A mint is the string <code>"block:tx"</code> naming the asset to mint. One transaction mints at most once.</p>
+      <ol class="rules">
+        <li><span class="rule-id">M-1</span><div class="rule-body">
+          <p>If no asset exists at that id, the mint does nothing. The transaction is not a cenotaph.</p>
+        </div></li>
+        <li><span class="rule-id">M-2</span><div class="rule-body">
+          <p>An asset marked unmintable cannot be minted. An asset is unmintable when its etching had no mint amount and was not in flex mode, or when its etching transaction was a cenotaph.</p>
+        </div></li>
+        <li><span class="rule-id">M-3</span><div class="rule-body">
+          <p>A transaction cannot mint the asset it etches. A mint whose block and transaction index equal the etching's is closed.</p>
+        </div></li>
+        <li><span class="rule-id">M-4</span><div class="rule-body">
+          <p>When the asset has a <code>cap</code>, the mint is closed once the completed mint count would exceed the cap. The cap counts mint transactions, not units.</p>
+        </div></li>
+        <li><span class="rule-id">M-5</span><div class="rule-body">
+          <p>The open window is derived from <code>height</code> and <code>offset</code>. Offsets are added to the etching block. When both a height bound and an offset bound are given for a side, the start takes the greater of the two and the end takes the lesser. A missing start defaults to the etching block; a missing end means no end. The mint is open when <code>start &lt;= block &lt;= end</code>.</p>
+        </div></li>
+        <li><span class="rule-id">M-6</span><div class="rule-body">
+          <p>When the asset has price terms, the mint transaction must pay each term: the sum of its outputs paying that term's <code>pay_to</code> address must be at least that term's <code>amount</code> in satoshis. A shortfall on any term means no mint, silently.</p>
+        </div></li>
+        <li><span class="rule-id">M-7</span><div class="rule-body">
+          <p>A fixed mint produces exactly <code>terms.amount</code> base units.</p>
+        </div></li>
+        <li><span class="rule-id">M-8</span><div class="rule-body">
+          <p>A flex mint produces <code>floor(total satoshis paid to pay_to / price amount)</code> base units, using the single price term. Payment above an exact multiple buys nothing extra and is not refunded.</p>
+        </div></li>
+        <li><span class="rule-id">M-9</span><div class="rule-body">
+          <p>A computed mint amount of zero or less produces nothing and does not consume a mint from the cap.</p>
+        </div></li>
+        <li><span class="rule-id">M-10</span><div class="rule-body">
+          <p>Minted units enter the transaction's unallocated pool. They are then distributed by the edicts and pointer of the same transaction, exactly like balances arriving on inputs.</p>
+        </div></li>
+      </ol>
+      <div class="note">
+        <p><strong>Nothing about a mint is rejected loudly.</strong> A closed window, an exceeded cap, an unpaid price, or an unknown id all leave a perfectly valid Bitcoin transaction that simply mints nothing. Check the terms before paying.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="edicts">
+      <h2 id="edicts">7. Edicts and allocation</h2>
+      <p>Balances arriving on the inputs, plus a premine, plus a mint, form one unallocated pool per asset id. Edicts move units out of that pool to specific outputs, in the order they appear.</p>
+
+      <figure>
+        <svg viewBox="0 0 720 300" role="img" aria-labelledby="allocTitle allocDesc">
+          <title id="allocTitle">How units flow from the unallocated pool to outputs</title>
+          <desc id="allocDesc">Input balances, premine, and minted units enter one unallocated pool per asset id. Each edict in order moves an amount from the pool to a named output, clamped to what remains. After the last edict, everything still unallocated goes to the pointer output, or to the first non OP_RETURN output when no usable pointer is given.</desc>
+          <rect x="16" y="30" width="150" height="34" rx="8" class="dia-fill"/>
+          <text x="30" y="52" class="dia-t">Input balances</text>
+          <rect x="16" y="74" width="150" height="34" rx="8" class="dia-fill"/>
+          <text x="30" y="96" class="dia-t">Premine (E-5)</text>
+          <rect x="16" y="118" width="150" height="34" rx="8" class="dia-fill"/>
+          <text x="30" y="140" class="dia-t">Minted units (M-10)</text>
+
+          <path class="dia-agave" d="M166 47h40v44h20M166 91h60M166 135h40V91"/>
+
+          <rect x="228" y="60" width="150" height="62" rx="10" class="dia-fill"/>
+          <text x="244" y="84" class="dia-t head">Unallocated pool</text>
+          <text x="244" y="104" class="dia-t small">one balance per asset id</text>
+
+          <path class="dia-clay" d="M303 122v28h-60v20M303 150h60v20"/>
+
+          <rect x="176" y="170" width="134" height="46" rx="8" class="dia-fill"/>
+          <text x="190" y="192" class="dia-t head">Edicts, in order</text>
+          <text x="190" y="209" class="dia-t small">clamped to the pool</text>
+
+          <rect x="336" y="170" width="134" height="46" rx="8" class="dia-fill"/>
+          <text x="350" y="192" class="dia-t head">Remainder</text>
+          <text x="350" y="209" class="dia-t small">pointer, else first output</text>
+
+          <path class="dia-clay" d="M243 216v22h300v-22M403 216v22"/>
+
+          <rect x="500" y="60" width="200" height="40" rx="8" class="dia-fill"/>
+          <text x="516" y="85" class="dia-t">vout 0: recipient</text>
+          <rect x="500" y="110" width="200" height="40" rx="8" class="dia-fill"/>
+          <text x="516" y="135" class="dia-t">vout 1: change or second party</text>
+          <rect x="500" y="160" width="200" height="40" rx="8" class="dia-fill"/>
+          <text x="516" y="185" class="dia-t">vout 2: OP_RETURN, burns</text>
+          <path class="dia-clay" d="M470 193h30v-8"/>
+          <path class="dia-agave" d="M378 91h122"/>
+          <text x="16" y="264" class="dia-t small">An edict naming the OP_RETURN output is legal, and the units it sends there are destroyed (B-1).</text>
+        </svg>
+        <figcaption>Allocation is one pass over the edicts, then one sweep of the remainder. Nothing is retried and nothing is rolled back.</figcaption>
+      </figure>
+
+      <ol class="rules">
+        <li><span class="rule-id">A-1</span><div class="rule-body">
+          <p>An edict is <code>[id, amount, output]</code>. <code>output</code> is an integer in <code>0 … 255</code> and must also be a valid output index of the transaction: <code>output &lt;= vout.length - 1</code>. An index equal to or above the number of outputs makes the transaction a cenotaph (<a href="#cenotaph">X-7</a>).</p>
+        </div></li>
+        <li><span class="rule-id">A-2</span><div class="rule-body">
+          <p>Edicts are applied in array order. Later edicts see the pool as earlier edicts left it.</p>
+        </div></li>
+        <li><span class="rule-id">A-3</span><div class="rule-body">
+          <p>An edict naming an asset that does not exist is skipped.</p>
+        </div></li>
+        <li><span class="rule-id">A-4</span><div class="rule-body">
+          <p>An edict naming an asset with nothing left in the pool is skipped.</p>
+        </div></li>
+        <li><span class="rule-id">A-5</span><div class="rule-body">
+          <p>An amount of <code>"0"</code> allocates <strong>everything</strong> remaining in the pool for that asset.</p>
+        </div></li>
+        <li><span class="rule-id">A-6</span><div class="rule-body">
+          <p>An amount larger than what remains is reduced to what remains. An edict never overdraws and never fails the transaction.</p>
+        </div></li>
+        <li><span class="rule-id">A-7</span><div class="rule-body">
+          <p>An allocation of zero units emits no transfer event, so a zero allocation is invisible in indexed activity.</p>
+        </div></li>
+        <li><span class="rule-id">A-8</span><div class="rule-body">
+          <p>An edict may name the OP_RETURN output. The allocation succeeds and the units are burnt (<a href="#burn">B-1</a>).</p>
+        </div></li>
+        <li><span class="rule-id">A-9</span><div class="rule-body">
+          <p>The reference allocator also contains the Runes-style rule for <code>output</code> equal to the number of outputs, splitting the pool across every non-OP_RETURN output. At the pinned revision that branch is unreachable, because such an edict is already rejected by <a href="#cenotaph">X-7</a>. Do not build payloads that depend on it.</p>
+        </div></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="pointer">
+      <h2 id="pointer">8. Pointer and remainder</h2>
+      <ol class="rules">
+        <li><span class="rule-id">R-1</span><div class="rule-body">
+          <p>After the last edict, everything still unallocated, for every asset id, goes to one single output: the output at index <code>pointer</code> when a usable pointer is given, otherwise the <strong>first non-OP_RETURN output</strong>.</p>
+        </div></li>
+        <li><span class="rule-id">R-2</span><div class="rule-body">
+          <p>A pointer that is not an index of this transaction falls back to the first non-OP_RETURN output. The pointer is not validated against the output count at parse time, so an out-of-range pointer does not make a cenotaph.</p>
+        </div></li>
+        <li><span class="rule-id">R-3</span><div class="rule-body">
+          <p>At the pinned revision, <code>"pointer": 0</code> is treated as no pointer, because the implementation tests the value for truthiness. The remainder then goes to the first non-OP_RETURN output. On the usual transaction shape those are the same output; do not rely on the distinction.</p>
+        </div></li>
+        <li><span class="rule-id">R-4</span><div class="rule-body">
+          <p>If the transaction has no non-OP_RETURN output at all, the remainder goes to the OP_RETURN output and is burnt.</p>
+        </div></li>
+        <li><span class="rule-id">R-5</span><div class="rule-body">
+          <p>There is no implicit change output. Every unit that is not allocated by an edict lands on exactly one output, which is why a transfer that forgets its change destination can hand a whole balance to a counterparty.</p>
+        </div></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="burn">
+      <h2 id="burn">9. Burning</h2>
+      <ol class="rules">
+        <li><span class="rule-id">B-1</span><div class="rule-body">
+          <p>Units allocated to an OP_RETURN output, by an edict or by the remainder rule, are burnt. They are recorded as burn activity, not as a transfer.</p>
+        </div></li>
+        <li><span class="rule-id">B-2</span><div class="rule-body">
+          <p>A cenotaph burns every Mezcal balance carried by the transaction's inputs. Nothing in the payload survives to move them.</p>
+        </div></li>
+        <li><span class="rule-id">B-3</span><div class="rule-body">
+          <p>Burning is permanent and reduces circulating supply. Total supply, as recorded at etching and minting, is not rewritten.</p>
+        </div></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="cenotaph">
+      <h2 id="cenotaph">10. Cenotaph conditions</h2>
+      <p>A cenotaph is a transaction whose Mezcal instruction is unreadable or invalid. The consequence is uniform and severe: the payload is discarded entirely, and every Mezcal balance on the inputs is burnt.</p>
+      <div class="table-wrap">
+        <table>
+          <caption>Every condition that produces a cenotaph, and the rule that states it.</caption>
+          <thead><tr><th scope="col">Id</th><th scope="col">Condition</th><th scope="col">Rule</th></tr></thead>
+          <tbody>
+            <tr><td><code>X-1</code></td><td>The OP_RETURN script cannot be decompiled, or has no push-data after the opcode</td><td><a href="#carrier">C-3</a></td></tr>
+            <tr><td><code>X-2</code></td><td>The payload bytes are not valid JSON</td><td><a href="#carrier">C-6</a></td></tr>
+            <tr><td><code>X-3</code></td><td>The JSON is not an object</td><td><a href="#grammar">P-1</a></td></tr>
+            <tr><td><code>X-4</code></td><td>An unknown top-level key is present</td><td><a href="#grammar">P-2</a></td></tr>
+            <tr><td><code>X-5</code></td><td><code>p</code> is missing or is not one of the three accepted literals</td><td><a href="#grammar">P-3</a></td></tr>
+            <tr><td><code>X-6</code></td><td>Any field fails its type or range check: a numeric amount, an out-of-range divisibility, a bad name, a two-character symbol, a malformed id, a pay_to that is not a Bitcoin address, and so on</td><td><a href="#units">U-1</a>, <a href="#etching">E-2</a> to <a href="#etching">E-8</a></td></tr>
+            <tr><td><code>X-7</code></td><td>An edict names an output index above the last output index</td><td><a href="#edicts">A-1</a></td></tr>
+            <tr><td><code>X-8</code></td><td>An edict id has block <code>0</code> with a non-zero tx part</td><td><a href="#ids">I-5</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="warn">
+        <p><strong>A cenotaph is not a no-op.</strong> The Bitcoin transaction confirms normally and the fee is spent. What is lost is every Mezcal balance the transaction was carrying. Validate the payload before signing: that is what the <a href="validator.html">validator</a> is for.</p>
+      </div>
+      <p>Two things that are <em>not</em> cenotaphs, and are easy to confuse with one: a transaction with no OP_RETURN output at all (<a href="#carrier">C-2</a>), and one whose OP_RETURN carries an empty payload (<a href="#carrier">C-5</a>). Both simply move balances by the remainder rule.</p>
+    </section>
+
+    <section aria-labelledby="order">
+      <h2 id="order">11. Order of evaluation</h2>
+      <ol class="rules">
+        <li><span class="rule-id">O-1</span><div class="rule-body">
+          <p>Blocks are processed in height order, and transactions in their index order inside the block. Genesis is block <code>898750</code>; nothing before it is processed.</p>
+        </div></li>
+        <li><span class="rule-id">O-2</span><div class="rule-body">
+          <p>Within a transaction the order is fixed: gather input balances into the pool, then <strong>etch</strong>, then <strong>mint</strong>, then apply <strong>edicts</strong>, then sweep the <strong>remainder</strong>, then record burns and write balances.</p>
+        </div></li>
+        <li><span class="rule-id">O-3</span><div class="rule-body">
+          <p>Because the etch runs first, an edict in the same transaction can allocate the premine using the self-reference id <code>0:0</code> (<a href="#ids">I-4</a>).</p>
+        </div></li>
+        <li><span class="rule-id">O-4</span><div class="rule-body">
+          <p>Because the mint runs before the edicts, freshly minted units can be allocated by the same transaction, and a mint with no edicts sends its units to the pointer output.</p>
+        </div></li>
+      </ol>
+      <p>Worked transactions for each operation are on the <a href="guide.html">guide</a>. Machine-checkable cases, valid and invalid, are on the <a href="vectors.html">test vectors</a> page.</p>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <h2>Pages</h2>
+        <ul>
+          <li><a href="./">Overview</a></li>
+          <li><a href="spec.html">Specification</a></li>
+          <li><a href="guide.html">Guide</a></li>
+          <li><a href="reference.html">Reference</a></li>
+          <li><a href="vectors.html">Test vectors</a></li>
+          <li><a href="validator.html">Validator</a></li>
+          <li><a href="changelog.html">Changelog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Document</h2>
+        <dl>
+          <dt>Owning repository</dt><dd><a href="https://github.com/bitcoinuniverseio/mezcal">bitcoinuniverseio/mezcal</a></dd>
+          <dt>Source path</dt><dd>spec.html</dd>
+          <dt>Documentation version</dt><dd>2026.09.01</dd>
+        </dl>
+      </div>
+      <div>
+        <h2>Subject</h2>
+        <dl>
+          <dt>Lifecycle</dt><dd>beta</dd>
+          <dt>Chain and network</dt><dd>bitcoin / mainnet</dd>
+          <dt>Upstream revision</dt><dd>bitapeslabs/mezcal @ 0f3323f</dd>
+          <dt>Last verified</dt><dd>2026-09-01</dd>
+        </dl>
+      </div>
+      <div>
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://docs.bitcoinuniverse.io">docs.bitcoinuniverse.io</a></li>
+          <li><a href="https://github.com/bitcoinuniverseio/mezcal/edit/main/spec.html">Edit this page on GitHub</a></li>
+          <li><a href="https://github.com/bitcoinuniverseio/mezcal/blob/main/SECURITY.md">Security policy</a></li>
+          <li><a href="https://mezcal.sh">mezcal.sh</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="colophon">Documentation published by Bitcoin Universe. Mezcal is an independent protocol by BitApes Labs; names and artwork remain with their creators, and this documentation implies no affiliation or endorsement. Verify every transaction before signing.</p>
+  </div>
+</footer>
+<script src="site.js" defer></script>
+</body>
+</html>
