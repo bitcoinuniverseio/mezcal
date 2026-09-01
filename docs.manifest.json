@@ -4,7 +4,7 @@
   "name": "Mezcal",
   "classification": "protocol",
   "repository": "bitcoinuniverseio/mezcal",
-  "documentationUrl": "https://docs.bitcoinuniverse.io/protocols/mezcal",
+  "documentationUrl": "https://docs.bitcoinuniverse.io/protocols/mezcal/",
   "docsRoot": ".",
   "sourceRef": "main",
   "releasedRef": "f4d50adf7308e277ab290ac2b6b4c9f4836a5676",
