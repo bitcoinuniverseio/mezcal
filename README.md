@@ -99,4 +99,4 @@ Central documentation portal: <https://docs.bitcoinuniverse.io>
 
 ## Availability and verified views
 
-A running protocol producer and a ready semantic view are separate states. Keep the last accepted checkpoint when readiness is unavailable; do not treat an unavailable response as an empty balance or substitute an external blockchain provider. See the [Mezcal service documentation](https://github.com/bitcoinuniverseio/docs-mezcal) for current availability and checkpoint semantics.
+A running protocol producer and a ready semantic view are separate states. The repaired reader has completed replay and holder publication, and current checkpoint readiness checks pass. Keep the last accepted checkpoint whenever readiness becomes unavailable; do not treat an unavailable response as an empty balance or substitute an external blockchain provider. See the [Mezcal service documentation](https://github.com/bitcoinuniverseio/docs-mezcal) for live availability and checkpoint semantics.
