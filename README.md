@@ -102,3 +102,9 @@ Central documentation portal: <https://docs.bitcoinuniverse.io>
 A running protocol producer and a ready semantic view are separate states. The repaired reader has completed replay and holder publication, and current checkpoint readiness checks pass. Keep the last accepted checkpoint whenever readiness becomes unavailable; do not treat an unavailable response as an empty balance or substitute an external blockchain provider. See the [Mezcal service documentation](https://github.com/bitcoinuniverseio/docs-mezcal) for live availability and checkpoint semantics.
 
 Storage maintenance keeps the live index and required recovery evidence while removing unused local database copies after verified cutover.
+# Recovery state
+
+The reader's ready state describes its indexed data, not permanent producer
+stability. A maintained producer source change waits through temporary owned-node
+transport refusals with bounded delay and explicit waiting/last-success status.
+Runtime admission is pending; data/authentication guards remain unchanged.
