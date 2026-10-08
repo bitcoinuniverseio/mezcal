@@ -107,4 +107,6 @@ Storage maintenance keeps the live index and required recovery evidence while re
 The reader's ready state describes its indexed data, not permanent producer
 stability. A maintained producer source change waits through temporary owned-node
 transport refusals with bounded delay and explicit waiting/last-success status.
-Runtime admission is pending; data/authentication guards remain unchanged.
+Runtime recovery is verified: its sole producer recovered the backlog while the
+existing reader and authenticated consumer stayed available. Data/authentication
+guards remain unchanged; temporary refusal still reports waiting explicitly.
