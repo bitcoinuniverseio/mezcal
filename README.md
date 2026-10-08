@@ -96,3 +96,7 @@ the validator, which are enhancements.
   [bitapeslabs/mezcal](https://github.com/bitapeslabs/mezcal).
 
 Central documentation portal: <https://docs.bitcoinuniverse.io>
+
+## Availability and verified views
+
+A running protocol producer and a ready semantic view are separate states. Keep the last accepted checkpoint when readiness is unavailable; do not treat an unavailable response as an empty balance or substitute an external blockchain provider. See the [Mezcal service documentation](https://github.com/bitcoinuniverseio/docs-mezcal) for current availability and checkpoint semantics.
