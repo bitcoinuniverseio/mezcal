@@ -110,3 +110,14 @@ transport refusals with bounded delay and explicit waiting/last-success status.
 Runtime recovery is verified: its sole producer recovered the backlog while the
 existing reader and authenticated consumer stayed available. Data/authentication
 guards remain unchanged; temporary refusal still reports waiting explicitly.
+
+## Responsive health checks
+
+Readiness checks use a fresh exact quarantine count and retain every source,
+checkpoint, coverage and integrity guard. Full diagnostic totals load separately
+so a slow disk scan cannot block health checks. Authenticated status labels each
+exact count snapshot with its observation time and freshness. While the first
+snapshot is unavailable, status returns 503 and `counts: null`, never invented
+zero balances. Stale diagnostic totals never establish readiness. See the
+[service contract](https://github.com/bitcoinuniverseio/docs-mezcal) for fields
+and retry behavior.
