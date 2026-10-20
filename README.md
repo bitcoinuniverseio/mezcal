@@ -121,3 +121,8 @@ snapshot is unavailable, status returns 503 and `counts: null`, never invented
 zero balances. Stale diagnostic totals never establish readiness. See the
 [service contract](https://github.com/bitcoinuniverseio/docs-mezcal) for fields
 and retry behavior.
+
+The bounded health API is deployed. Its checks remain responsive when disk
+pressure prevents diagnostic totals from completing; unavailable statistics
+and stale source state remain visible. Responsive HTTP alone does not mean
+the protocol projection is synchronized.
